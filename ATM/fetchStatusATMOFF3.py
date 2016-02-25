@@ -338,15 +338,15 @@ def getATMStatsCRO(table):
 
 		if tdcells:
 
-			if "ATM CENTER" in tdcells[8].getText():
+			if "ATM CENTER" in tdcells[7].getText():
 
 				seqNo = seqNo +1
 
-				msgBody += "\n"+str(seqNo)+") "+ tdcells[8].getText().replace("ATM CENTER ","").replace("(","").replace(")","") + "\n\n"+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\nLOKASI: "+ tdcells[6].getText().title() +"\nDURASI: "+ tdcells[9].getText().replace("Hari", "Hari ").replace("days", "hari ").replace("hours","jam") +"\n"
+				msgBody += "\n"+str(seqNo)+") "+ tdcells[7].getText().replace("ATM CENTER ","").replace("(","").replace(")","") + "\n\nTID: "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[8].getText().replace("Hari", "Hari ").replace("days", "hari ").replace("hours","jam") +"\n"
 
-				if tdcells[11].getText():
+				if tdcells[10].getText():
 
-					msgBody += "KETERANGAN:\n"+ tdcells[11].getText() + "\n"
+					msgBody += "KETERANGAN:\n"+ tdcells[10].getText() + "\n"
 
 	if msgBody == "":
 		msgBody = "Tidak ada ATM OFF di wilayah kerja Anda."
@@ -384,15 +384,15 @@ def getATMStatsUKO(table):
 
 		if tdcells:
 
-			if "ATM CENTER" not in tdcells[8].getText():
+			if "ATM CENTER" not in tdcells[7].getText():
 
 				seqNo = seqNo +1
 
-				msgBody += "\n"+str(seqNo)+") "+ tdcells[7].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ").title() +"\nLOKASI: "+ tdcells[6].getText() +"\nDURASI: "+ tdcells[9].getText().replace("Hari", "hari ").replace("hours","jam") +"\n"
+				msgBody += "\n"+str(seqNo)+") "+ tdcells[7].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ").title() +"\nLOKASI: "+ tdcells[5].getText() +"\nDURASI: "+ tdcells[8].getText().replace("Hari", "hari ").replace("hours","jam") +"\n"
 
-				if tdcells[11].getText():
+				if tdcells[10].getText():
 
-					msgBody += "KETERANGAN:\n"+ tdcells[11].getText() + "\n"
+					msgBody += "KETERANGAN:\n"+ tdcells[10].getText() + "\n"
 
 	if msgBody == "":
 		msgBody = "Tidak ada ATM OFF di wilayah kerja Anda."
