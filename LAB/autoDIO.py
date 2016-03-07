@@ -4,12 +4,11 @@
 # autoDIO.py
 # (c) Jansen A. Simanullang
 # 03.03.2016 19:24
-# 07.03.2016 08:13
+# 07.03.2016 17:35
 #---------------------------------------
-# usage: autoDIO
+# usage: python autoDIO.py
 # automated digital office
-# print letters to pdf then send to team
-# TODO: naming convention for PDF output
+# TODO: send PDF via Telegram to team
 #---------------------------------------
 
 
@@ -26,12 +25,48 @@ key1 = key1.decode("utf-8")
 key1 = key1.encode("utf-8")
 key2 = key2.decode("utf-8")
 key2 = key2.encode("utf-8")
+defaultTeamName = "ALL"
 #--------------------------------
 
 if os.name == 'posix':
 	os.system('clear')
 else:
 	os.system('cls')
+
+
+def encrypt(strInput, key1, key2):
+	#--------------------------------
+	# encrypt(strInput, key1, key2)
+	# encrypt a string input with key1 and key2
+	#
+	key1 = key1.decode("utf-8")
+	key1 = key1.encode("utf-8")
+
+	obj = AES.new(key1, AES.MODE_CBC, key2)
+
+	remainder = len(strInput)/16.0 - len(strInput)/16 
+	quotient = len(strInput)/16
+
+	if remainder:
+		message = strInput.ljust(16*(quotient+1))
+
+
+
+	encryptedText = obj.encrypt(message)
+
+	return encryptedText
+
+def createPass():
+
+	username = str(input('Enter your 8 digit personal number: '))
+	username = username.zfill(8)
+	print username
+	password = str(raw_input('Enter your BRISTARS password: '))
+	strInput = username + ":" + password
+	encryptedText = encrypt(strInput, key1, key2)
+	fileCreate(".pass",encryptedText)
+
+	return username, password
 
 def decrypt(strInput, key1, key2):
 	#--------------------------------
@@ -128,7 +163,7 @@ def mapTerms():
 	teamTerms["TSI"] = ["BUZZ", "PC", "VSAT", "V-SAT", "WEB", "LAS", "VIRUS"]
 	teamTerms["EDC"] = ["EDC"]
 	teamTerms["ATM"] = ["ATM", "PONSEL", "HP"]
-	teamTerms["ALL"] = ["RISIKO", "PULSA", "IT", "DEVICE", "PEMBERITAHUAN", "RELOKASI"]
+	teamTerms["ALL"] = ["RISIKO", "PULSA", "IT", "DEVICE", "PEMBERITAHUAN", "RELOKASI", "BISS", "PENDAFTARAN", "SECURITY", "PERMOHONAN"]
 
 	return teamTerms
 
@@ -187,10 +222,6 @@ def getInbox(strHTML):
 
 
 
-read, unread, colheaders = getInbox(readTextFile("inbox.html"))
-
-
-
 def getLetter(read):
 	
 	print "letter to process: ", len(read)
@@ -214,8 +245,13 @@ def getLetter(read):
 
 	return Letters
 
+try:
+	username, password = getUserPass(".pass")
+except:
+	createPass()
+	print "User and password has been saved to .pass file.\nPlease delete the file if you want to change your credentials."
+	username, password = getUserPass(".pass")
 
-username, password = getUserPass(".pass")
 
 
 def login(username, password):
@@ -255,6 +291,7 @@ def login(username, password):
 	time.sleep(1)
 
 	strHTML = browser.html
+	global colheaders
 	read, unread, colheaders = getInbox(strHTML)
 	anyReadUnread = len(read)+len(unread)
 
@@ -288,7 +325,7 @@ def login(username, password):
 		print strPerihal
 		trs.first.click()
 		browser.driver.execute_script("window.scrollTo(0, 0)")
-		time.sleep(4)
+		time.sleep(5)
 		browser.find_by_text("LIHAT INFORMASI SURAT").first.click()
 		time.sleep(1)
 
@@ -370,6 +407,8 @@ def login(username, password):
 
 		Words = strPerihal.upper().split(" ")
 
+		teamName = defaultTeamName
+
 		for keyword in Keywords:
 
 			for word in Words:
@@ -393,7 +432,7 @@ def login(username, password):
 					print team, elem["value"], "--> box checked"
 
 					elem.click()
-					time.sleep(2)
+					time.sleep(1)
 
 		browser.fill("CATATAN_BANYAK", strPerihal+ " - Disposisi by bot")
 
@@ -409,7 +448,7 @@ def login(username, password):
 		# back to loop until all letters read and disposed
 		#----------------------------------------------------------------
 		browser.visit('http://172.18.65.190/eoffice/surat/surat_masuk')
-		time.sleep(3)
+		time.sleep(4)
 		strHTML = browser.html
 		read, unread, colheaders = getInbox(strHTML)				
 		anyReadUnread = len(read)+len(unread)
