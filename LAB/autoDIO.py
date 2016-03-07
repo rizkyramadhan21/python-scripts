@@ -4,7 +4,7 @@
 # autoDIO.py
 # (c) Jansen A. Simanullang
 # 03.03.2016 19:24
-# 04.03.2016 11:40
+# 07.03.2016 08:13
 #---------------------------------------
 # usage: autoDIO
 # automated digital office
@@ -109,51 +109,6 @@ def removeTags(arrTags, strHTML):
 	return strHTML
 
 
-
-
-def getTanggalPerihal(strHTML):
-	#--------------------------------
-	# getTanggalPerihal(strHTML)
-	# TODO: get from Table Surat Masuk
-	strPerihal = ""
-	strTanggal = ""
-	HTMLSoup = BeautifulSoup(strHTML)
-	strHTML = HTMLSoup.findAll("table", {"class" : "isi_surat"})
-
-	HTMLSoup = BeautifulSoup(str(strHTML))
-	strHTML = HTMLSoup.findAll("div",{"align":"left"})
-
-	for i in range (0, len(strHTML)):
-		
-		dText = strHTML[i].getText()
-
-		if "PERIHAL" in dText.upper():
-
-			strPerihal = strHTML[i+2].getText()
-			print "Perihal: " + strPerihal
-
-		if "TANGGAL" in dText.upper():
-
-			strTanggal = strHTML[i+2].getText()
-			print "Tanggal: " + strTanggal
-
-
-	return strTanggal, strPerihal
-
-
-
-
-def makeFileName(strHTML):
-
-	strTanggal, strPerihal = getTanggalPerihal(strHTML)
-
-	strFileName = strTanggal + "-" + strPerihal
-
-	return strFileName
-
-
-
-
 def createTeam():
 	TeamMembers = dict()
 	TeamMembers["TSI"] = ["00001663","00067001","00069929","90096903","90101069","90102622","90103433","90106652","90113057"]
@@ -170,10 +125,10 @@ def mapTerms():
 
 	teamTerms = dict()
 
-	teamTerms["TSI"] = ["BUZZ", "PC", "VSAT", "V-SAT", "WEB", "LAS"]
+	teamTerms["TSI"] = ["BUZZ", "PC", "VSAT", "V-SAT", "WEB", "LAS", "VIRUS"]
 	teamTerms["EDC"] = ["EDC"]
 	teamTerms["ATM"] = ["ATM", "PONSEL", "HP"]
-	teamTerms["ALL"] = ["RISIKO", "PULSA", "IT", "DEVICE", "PEMBERITAHUAN"]
+	teamTerms["ALL"] = ["RISIKO", "PULSA", "IT", "DEVICE", "PEMBERITAHUAN", "RELOKASI"]
 
 	return teamTerms
 
@@ -194,6 +149,19 @@ def findTeam(strKeyword, TermsMap):
 		
 			return teamName		
 	
+
+def allKeywords(TermsMap):
+
+	Keywords = []
+	
+	for k,vs in TermsMap.iteritems():
+
+		for v in vs:
+
+			Keywords.append(v)
+		
+	return sorted(Keywords)
+
 
 
 def getInbox(strHTML):
@@ -320,7 +288,7 @@ def login(username, password):
 		print strPerihal
 		trs.first.click()
 		browser.driver.execute_script("window.scrollTo(0, 0)")
-		time.sleep(3)
+		time.sleep(4)
 		browser.find_by_text("LIHAT INFORMASI SURAT").first.click()
 		time.sleep(1)
 
@@ -398,7 +366,7 @@ def login(username, password):
 		# Find the team name to be disposed of the letters
 		#----------------------------------------------------------------
 	
-		Keywords = ["ATM","EDC","IT", "BUZZ", "PONSEL", "VSAT", "PC", "V-SAT", "RISIKO", "PEMBERITAHUAN", "HP"]
+		Keywords = allKeywords(TermsMap)
 
 		Words = strPerihal.upper().split(" ")
 
