@@ -1,8 +1,8 @@
 #!/usr/bin/python
 #---------------------------------------
-# getRumahDijual.py
+# getHouseforSale.py
 # (c) Jansen A. Simanullang
-# 17.03.2016 15:55
+# 17.03.2016 18:55
 #---------------------------------------
 # usage: python getHouseforSale.py [area]
 #
@@ -16,6 +16,12 @@
 # ** direct fetch or proxy fetch
 # * random select proxy
 # * random select user agent
+#
+# config file:
+# * stores target number
+# * stores last visit number
+# * in case crawler stopped
+# * next crawling process will begin from last visit
 #
 # output: 
 # csv file of selected area
@@ -35,8 +41,13 @@ from BeautifulSoup import BeautifulSoup
 from splinter import Browser
 import base64, os, sys, time, urllib2
 from random import randint
+from ConfigParser import SafeConfigParser
 
 alamatURL = "http://rumahdijual.com/"
+configName = 'simple.ini'
+	
+scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "/"
+fullConfigName = scriptDirectory + configName
 
 
 def pickUserAgent():
@@ -400,7 +411,69 @@ def correctURL(strURL):
 		strURL = decodeURL(strURL)
 		
 	return strURL
+	
+	
 
+def updateConfig(area, option, value):
+	#
+	# update config file upon subprocess
+
+	if not os.path.isfile(fullConfigName):
+
+		print "create file"
+		
+	if os.path.isfile(fullConfigName):
+
+		parser = SafeConfigParser()
+		parser.read(configName)
+
+		if parser.has_section(area) == False:
+
+			parser.add_section(area)
+			
+		print area, option, value
+		
+		parser.set(area, option, value)
+			
+		with open (r'simple.ini', 'wb') as configfile:
+
+			parser.write(configfile)
+			
+		
+	
+def readConfig(area, option):
+	#
+	# read config file for last visit
+
+	parser = SafeConfigParser()
+	parser.read(configName)
+
+	if parser.has_section(area) == False:
+
+		parser.add_section(area)
+	
+	options = parser.items(area)
+	
+	existence = False
+	
+	for item in options:
+	
+		if item[0] == option:
+		
+			existence += True
+		
+	if existence == False:
+	
+		parser.set(area, option, '0')
+	
+		with open (r'simple.ini', 'wb') as configfile:
+				
+			parser.write(configfile)
+			
+	value = parser.get(area, option)
+	
+	return value
+	
 	
 # below are the main lines of this script
 if len(sys.argv) > 0:
@@ -414,14 +487,16 @@ if len(sys.argv) > 0:
 		AREA = "depok"
 	
 	alamatURL= alamatURL + AREA + "/"
-
+	
 	msgBody = switchFetch(alamatURL)
 	
 	lastpage = getLastPage(msgBody)
 	
-	getDatafromPage(msgBody)
+	updateConfig(AREA, 'target', str(lastpage))
 	
-	for i in range(2, lastpage+1):
+	lastvisit = int(readConfig(AREA, 'visit'))
+	
+	for i in range(lastvisit+1, lastpage+1):
 	
 		cursorURL = alamatURL + "index" + str(i) + ".html"
 		
@@ -437,4 +512,6 @@ if len(sys.argv) > 0:
 	
 		msgBody = switchFetch(cursorURL)
 		
-		getDatafromPage(msgBody)	
+		getDatafromPage(msgBody)
+		
+		updateConfig(AREA, 'visit', str(i))
