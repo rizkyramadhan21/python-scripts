@@ -39,7 +39,7 @@
 
 from BeautifulSoup import BeautifulSoup
 from splinter import Browser
-import base64, os, sys, time, urllib2
+import base64, os, sys, time, urllib2, pyvirtualdisplay
 from random import randint
 from ConfigParser import SafeConfigParser
 
@@ -260,6 +260,9 @@ def formatData(strText):
 		mandi = int(strText[9+shiftIndex])
 	except:
 		mandi = None
+		if (tidur != None) and (len(str(tidur)) > 1):
+			mandi = int(str(tidur)[-1])
+			tidur = int(str(tidur)[0])
 		
 	return harga, tanah, bangunan, tidur, mandi
 	
@@ -296,7 +299,14 @@ def proxyFetch(alamatURL):
 	proxyURL = pickProxy()
 	
 	try:
-		browser = Browser()
+	
+		try:
+			# preferably using Chrome
+			browser = Browser('chrome')
+		except:
+			# "please install Chrome Web Driver from https://sites.google.com/a/chromium.org/chromedriver/downloads"
+			browser = Browser()
+		
 		browser.driver.maximize_window()
 
 		browser.visit(proxyURL)
@@ -319,8 +329,14 @@ def proxyFetch(alamatURL):
 		browser.driver.close()
 		
 	except:
+	
+		try:
+			browser.driver.close()
+		except:
+			pass
+			
 		print "retrying..."
-		time.sleep(10)
+		#time.sleep(10)
 		strHTML = proxyFetch(alamatURL)
 	
 	return strHTML
@@ -382,7 +398,7 @@ def switchFetch(alamatURL):
 	if randKey == 1:
 		
 		print "try connecting directly...\n"
-		print "try pressing ENTER here if not responding..."
+		print "try pressing ENTER here if not responding...\n"
 
 		
 		strHTML = directFetch(alamatURL)
@@ -390,7 +406,7 @@ def switchFetch(alamatURL):
 	else:
 		
 		print "try connecting via web proxy...\n"
-		print "try closing browser if browser not responding..."
+		print "try closing browser if browser not responding...\n"
 		
 		strHTML = proxyFetch(alamatURL)
 		
@@ -474,6 +490,17 @@ def readConfig(area, option):
 	
 	return value
 	
+
+def clearScreen():
+
+	if os.name == "posix":
+		
+		os.system("clear")
+			
+	else:
+		
+		os.system("cls")
+	
 	
 # below are the main lines of this script
 if len(sys.argv) > 0:
@@ -488,11 +515,17 @@ if len(sys.argv) > 0:
 	
 	alamatURL= alamatURL + AREA + "/"
 	
-	msgBody = switchFetch(alamatURL)
+	clearScreen()
 	
-	lastpage = getLastPage(msgBody)
+	lastpage = int(readConfig(AREA, 'target'))
 	
-	updateConfig(AREA, 'target', str(lastpage))
+	if (lastpage == 0):
+	
+		msgBody = switchFetch(alamatURL)
+		
+		lastpage = getLastPage(msgBody)
+		
+		updateConfig(AREA, 'target', str(lastpage))
 	
 	lastvisit = int(readConfig(AREA, 'visit'))
 	
@@ -500,13 +533,7 @@ if len(sys.argv) > 0:
 	
 		cursorURL = alamatURL + "index" + str(i) + ".html"
 		
-		if os.name == "posix":
-		
-			os.system("clear")
-			
-		else:
-		
-			os.system("cls")
+		clearScreen()
 		
 		print "fetching data from: ", cursorURL, "... "+str(i)+" from " +str(lastpage) +"\n"
 	
