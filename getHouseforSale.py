@@ -16,6 +16,7 @@
 # ** direct fetch or proxy fetch
 # * random select proxy
 # * random select user agent
+# * disable images in Chrome
 #
 # config file:
 # * stores target number
@@ -39,12 +40,15 @@
 
 from BeautifulSoup import BeautifulSoup
 from splinter import Browser
-import base64, os, sys, time, urllib2, pyvirtualdisplay
+from selenium import webdriver
+import base64, os, sys, time, urllib2
 from random import randint
 from ConfigParser import SafeConfigParser
 
 alamatURL = "http://rumahdijual.com/"
 configName = 'simple.ini'
+defaultAREA = "depok"
+disableImage = True
 	
 scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "/"
 fullConfigName = scriptDirectory + configName
@@ -88,7 +92,7 @@ def directFetch(alamatURL):
 	except:
 		
 		print "waiting... (if the problem persists try disconnecting and reconnecting your connection without closing this window)"
-		time.sleep(5)
+		time.sleep(1)
 		strHTML = proxyFetch(alamatURL)
 		
 	return strHTML
@@ -228,7 +232,7 @@ def formatData(strText):
   # format data
 
 	strText = strText.split(" ")
-	#print strText
+	
 	try:
 		shiftIndex = 0
 		if "juta" in strText:
@@ -296,20 +300,30 @@ def proxyFetch(alamatURL):
 	#
 	# fetch web page via web proxy
 
-	proxyURL = pickProxy()
+	webProxy = pickProxy()
 	
 	try:
 	
 		try:
 			# preferably using Chrome
 			browser = Browser('chrome')
+			
+			if disableImage == True:
+			
+				browser.driver.close()
+
+				options = webdriver.ChromeOptions()
+				options.add_experimental_option("excludeSwitches", ["ignore-certificate-errors"])
+				options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images":2})
+				browser.driver = webdriver.Chrome(chrome_options=options)
+		
 		except:
 			# "please install Chrome Web Driver from https://sites.google.com/a/chromium.org/chromedriver/downloads"
 			browser = Browser()
 		
 		browser.driver.maximize_window()
 
-		browser.visit(proxyURL)
+		browser.visit(webProxy)
 		
 		time.sleep(2)
 
@@ -336,7 +350,7 @@ def proxyFetch(alamatURL):
 			pass
 			
 		print "retrying..."
-		#time.sleep(10)
+		
 		strHTML = proxyFetch(alamatURL)
 	
 	return strHTML
@@ -367,9 +381,9 @@ def pickProxy():
 	
 		randIdx = 1
 	
-	proxyURL = "https://"+str(randKey)+".hidemyass.com/ip-"+ str(randIdx)
+	webProxy = "https://"+str(randKey)+".hidemyass.com/ip-"+ str(randIdx)
 	
-	return proxyURL
+	return webProxy
 	
 	
 	
@@ -397,16 +411,16 @@ def switchFetch(alamatURL):
 	
 	if randKey == 1:
 		
-		print "try connecting directly...\n"
-		print "try pressing ENTER here if not responding...\n"
+		#print "try connecting directly...\r\n"
+		#print "try pressing ENTER here if not responding...\r\n"
 
 		
 		strHTML = directFetch(alamatURL)
 		
 	else:
 		
-		print "try connecting via web proxy...\n"
-		print "try closing browser if browser not responding...\n"
+		#print "try connecting via web proxy...\r\n"
+		#print "try closing browser if browser not responding...\r\n"
 		
 		strHTML = proxyFetch(alamatURL)
 		
@@ -511,7 +525,7 @@ if len(sys.argv) > 0:
 		
 	except IndexError:
 	
-		AREA = "depok"
+		AREA = defaultAREA
 	
 	alamatURL= alamatURL + AREA + "/"
 	
@@ -535,7 +549,7 @@ if len(sys.argv) > 0:
 		
 		clearScreen()
 		
-		print "fetching data from: ", cursorURL, "... "+str(i)+" from " +str(lastpage) +"\n"
+		sys.stdout.write("fetching data from: "+ cursorURL+ "... "+str(i)+" from " +str(lastpage)+"\r")
 	
 		msgBody = switchFetch(cursorURL)
 		
