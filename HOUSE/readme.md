@@ -2,7 +2,7 @@
 
 Buying a house is an important decision and sometimes a though one when money is scarce.
 
-This time I created a script to collect data of house in "House for Sale" website.
+This time I created a [Python Script](https://github.com/jansenicus/python-scripts/blob/master/HOUSE/getHouseforSale.py) to collect data of house in "House for Sale" website.
 
 You can use it to gather house data within a certain price range.
 You want to know what building area or land area is provided within that price range.
