@@ -229,7 +229,7 @@ def directFetch(alamatURL):
 		
 	except:
 		
-		print "waiting... (if the problem persists try disconnecting and reconnecting your connection without closing this window)"
+		print "\nwaiting... (if the problem persists try disconnecting and reconnecting your connection without closing this window)"
 		time.sleep(1)
 		strHTML = proxyFetch(alamatURL)
 		
@@ -608,7 +608,7 @@ def crawl(AREA, minPRICE, maxPRICE):
 		
 		clearScreen()
 		
-		sys.stdout.write("fetching data from: "+ cursorURL+ "... "+str(i)+" from " +str(pages))
+		sys.stdout.write("fetching data from:\n"+ cursorURL+ "...\n page: "+str(i)+" of " +str(pages) + " pages")
 	
 		msgBody = switchFetch(cursorURL)
 		
