@@ -3,7 +3,7 @@
 # getHouseforSale.py
 # (c) Jansen A. Simanullang
 # 17.03.2016
-# 18.03.2016 12:46
+# 18.03.2016 17:11
 #-------------------------------------------------
 # BACKGROUND
 # if you live in Indonesia and want to buy a house
@@ -26,6 +26,7 @@
 # * random select user agent
 # * disable images in Chrome
 # * limit search result criteria
+# * sound wave signalling stages of process
 #
 # CONFIGURATION
 # * config file:
@@ -51,7 +52,7 @@
 from BeautifulSoup import BeautifulSoup
 from splinter import Browser
 from selenium import webdriver
-import base64, math, os, sys, time, urllib2
+import base64, math, os, sys, time, urllib2, pyaudio, wave
 from random import randint
 from ConfigParser import SafeConfigParser
 
@@ -580,7 +581,33 @@ def correctURL(strURL):
 		
 	return strURL
 	
+	
 
+def playWav(filename):
+
+	CHUNK = 1024
+
+	wf = wave.open(filename, 'rb')
+
+	p = pyaudio.PyAudio()
+
+	stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+					channels=wf.getnchannels(),
+					rate=wf.getframerate(),
+					output=True)
+
+	data = wf.readframes(CHUNK)
+
+	while data != '':
+		stream.write(data)
+		data = wf.readframes(CHUNK)
+
+	stream.stop_stream()
+	stream.close()
+
+	p.terminate()
+	
+	
 
 def crawl(AREA, minPRICE, maxPRICE):
 	
@@ -617,9 +644,14 @@ def crawl(AREA, minPRICE, maxPRICE):
 		updateConfig(AREA, 'visit', str(i))
 		
 		visit = readConfig(AREA, 'visit')
-			
+		
+		if int(i) == int(pages):
+		
+			sys.stdout.write("\n FETCHING PROCESS FINISHED.\n\n Please check OUTPUT folder.\n Output written as file: " + AREA + "-between-" + str(int(minPRICE)/1000000)+"-"+str(int(maxPRICE)/1000000)+".csv\n\n HAVE A NICE DAY! GOD BLESS YOU!")
+			playWav("wav/burp-1.wav")		
+
 		sys.stdout.flush()
-		
-		
+		playWav("wav/spinning-coin-1.wav")
+	
 # below are the main lines of this script
 crawl(AREA, minPRICE, maxPRICE)
