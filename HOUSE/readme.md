@@ -1,3 +1,4 @@
+![Making Better Decision Buying a House](https://media.licdn.com/mpr/mpr/jc/AAEAAQAAAAAAAAaSAAAAJGZhNWI4N2U0LWNkOGItNDJjOS1hMGJiLWQyODc2ZGQxYThkNw.jpg)
 #Making Better Decision Buying a House
 
 Buying a house is an important decision and sometimes a though one when money is scarce.
