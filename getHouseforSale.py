@@ -1,57 +1,197 @@
 #!/usr/bin/python
-#---------------------------------------
+#-------------------------------------------------
 # getHouseforSale.py
 # (c) Jansen A. Simanullang
-# 17.03.2016 18:55
-#---------------------------------------
-# usage: python getHouseforSale.py [area]
+# 17.03.2016
+# 18.03.2016 12:46
+#-------------------------------------------------
+# BACKGROUND
+# if you live in Indonesia and want to buy a house
+# most likely you will visit: 'rumahdijual.com'
+# in Bahasa 'rumahdijual' literally means 'house for sale'
 #
+# USAGE 
+# python getHouseforSale.py [area] [min] [max]
+# [min] is minimum price in million (juta)
+# [max] is maximum price in million (juta)
 # example:
-# python getHouseforSale.py bogor
-# python getHouseforSale.py depok
+# python getHouseforSale.py bogor 100 1000
+# python getHouseforSale.py depok 100 2000
 #
-# features:
-# slow but sure crawler, avoid IP block:
-# * random select fetching method:
-# ** direct fetch or proxy fetch
-# * random select proxy
+# FEATURES
+# * slow but sure crawler, avoid IP blocking
+# * random select fetching method
+# * direct fetch or via web proxy
+# * random select web proxy
 # * random select user agent
 # * disable images in Chrome
+# * limit search result criteria
 #
-# config file:
-# * stores target number
-# * stores last visit number
-# * in case crawler stopped
-# * next crawling process will begin from last visit
+# CONFIGURATION
+# * config file:
+# * number of pages to crawl
+# * number of visited url
+# * crawling resume from last visit
+# * minimum price
+# * maximum price
 #
-# output: 
-# csv file of selected area
-# in OUTPUT folder
-#
-# main domain: rumahdijual.com
-# 'rumahdijual' literally means house for sale
+# OUTPUT 
+# csv file of selected area located in OUTPUT folder
+# you will able to sort and analyze the data
+# for the best decision in buying a house
 # 
 # ALL RIGHTS RESERVED
-# this script is provided as is
-# without warranty or merchantability
-# of any kind
-# please use this script wisely
+# this script is provided as is without warranty to fit particular purpose or merchantability of any kind
+# 
+# If you make money from this script, please consider to make a donation!
+# My family needs a house.
+# jansen.simanullang@gmail.com
 #---------------------------------------
 
 from BeautifulSoup import BeautifulSoup
 from splinter import Browser
 from selenium import webdriver
-import base64, os, sys, time, urllib2
+import base64, math, os, sys, time, urllib2
 from random import randint
 from ConfigParser import SafeConfigParser
 
 alamatURL = "http://rumahdijual.com/"
-configName = 'simple.ini'
+configName = 'property.ini'
 defaultAREA = "depok"
+defaultMinprice = 100000000
+defaultMaxprice = 2000000000
 disableImage = True
 	
 scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "/"
 fullConfigName = scriptDirectory + configName
+
+def clearScreen():
+
+	if os.name == "posix":
+		
+		os.system("clear")
+			
+	else:
+		
+		os.system("cls")
+		
+		
+def readConfig(area, option):
+	#
+	# read config file for last visit
+
+	parser = SafeConfigParser()
+	parser.read(configName)
+
+	if parser.has_section(area) == False:
+
+		parser.add_section(area)
+	
+	options = parser.items(area)
+	
+	existence = False
+	
+	for item in options:
+	
+		if item[0] == option:
+		
+			existence += True
+			
+	defaultValue = {"visit":"0", "pages":"0", "minprice":str(defaultMinprice), "maxprice":str(defaultMinprice)}
+	
+	if existence == False:
+	
+		parser.set(area, option, defaultValue[option])
+	
+		with open (r'property.ini', 'wb') as configfile:
+				
+			parser.write(configfile)
+			
+	value = parser.get(area, option)
+	
+	return value
+	
+
+	
+def updateConfig(area, option, value):
+	#
+	# update config file upon subprocess
+
+	if not os.path.isfile(fullConfigName):
+
+		print "create file"
+		
+	if os.path.isfile(fullConfigName):
+
+		parser = SafeConfigParser()
+		parser.read(configName)
+
+		if parser.has_section(area) == False:
+
+			parser.add_section(area)
+			
+		parser.set(area, option, value)
+			
+		with open (r'property.ini', 'wb') as configfile:
+
+			parser.write(configfile)
+
+
+		
+def argCheck():
+
+	flagChange = False
+
+	if len(sys.argv) > 0:
+
+		try:
+		
+			AREA = sys.argv[1]
+			
+		except IndexError:
+		
+			AREA = defaultAREA
+			
+		try:
+		
+			minPRICE = str(int(sys.argv[2])*1000000)
+			before = readConfig(AREA, 'minprice')
+			updateConfig(AREA, 'minprice', minPRICE)
+			after = readConfig(AREA, 'minprice')
+			
+			if before != after:
+				flagChange += True
+		
+		except:
+		
+			minPRICE = readConfig(AREA, 'minprice')
+			
+		try:
+		
+			maxPRICE = str(int(sys.argv[3])*1000000)
+			before = readConfig(AREA, 'minprice')
+			updateConfig(AREA, 'maxprice', maxPRICE)
+			after = readConfig(AREA, 'minprice')
+
+			if before != after:
+				flagChange += True
+				
+		except:
+		
+			maxPRICE = readConfig(AREA, 'maxprice')
+			
+	if flagChange == True:
+	
+		# if arguments changed then reset 'visit' and 'pages'
+	
+		updateConfig(AREA, 'visit', '0')
+		updateConfig(AREA, 'pages', '0')
+
+
+	return AREA, minPRICE, maxPRICE
+
+
+AREA, minPRICE, maxPRICE = argCheck()
 
 
 def pickUserAgent():
@@ -83,8 +223,6 @@ def directFetch(alamatURL):
 
 		strHTML = strHTML.encode('ascii', 'ignore')
 
-		#strHTML = cleanUpHTML(strHTML)
-
 		mysoup = BeautifulSoup(strHTML)
 		
 		#print ">> URL fetched."
@@ -105,11 +243,10 @@ def getLastPage(strHTML):
   #------------------------------------------
 	
 	soup = BeautifulSoup(strHTML)
-	pagenav = soup.find('div', {"class":"pagenav"})
-	#print pagenav
-	lastpage = pagenav.find('table').findAll('td')[0].getText().replace('Halaman 1 dari ','')
-	
-	return int(lastpage)
+	pagenav = soup.findAll('td', {"class":"tcat"})[1]
+	searchresult =  pagenav.getText().split('dari')[1].replace(")","").strip()
+	pages = int(math.ceil(int(searchresult)/15.0))
+	return int(pages)
 	
 	
 	
@@ -123,7 +260,7 @@ def getDatafromPage(strHTML):
 	scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "/"
 	
 	fullPath = scriptDirectory + "OUTPUT/"
-	outputfile = fullPath + AREA + ".csv"
+	outputfile = fullPath + AREA + "-between-"+str(int(minPRICE)/1000000)+"-"+str(int(maxPRICE)/1000000)+".csv"
 
 	if not os.path.exists(fullPath):
 		os.mkdir(fullPath)
@@ -137,69 +274,71 @@ def getDatafromPage(strHTML):
   # get the premium advertised content
   
 	resultset = soup.findAll('table', {"class":"tblSearchResultRow tblPremiumClass"})
-
+	
 	for result in resultset:
-	
-		tables = result.findAll('td')[0].getText()
-	
-		strURL = result.findAll('td')[-2].find('a')['href']
+						
+		tdset = result.findAll('td')
+						
+		for td in tdset:
+
+			try:
+							
+				if td['class'] == 'tdInfoSpec':
+								
+					data = td.getText()
+					data = str(formatData(cleanUpText(data))).strip("()")
+					
+						
+				if td['class'] == 'TdTitleDesc':
+								
+					strURL = td.find('a')['href']
+					
+						
+			except:
+							
+				continue
 		
-		strURL = correctURL(strURL) #+ ", " + strURL
-		
-		data = str(formatData(cleanUpText(tables))).strip("()") + ", " + strURL
-		
-		#if "None" not in data:
-		
+		strURL = correctURL(strURL)
+							
+		data = data + ", " + strURL
+
 		fileAppend(outputfile, data+"\n")
 		
-
 	# get the forum content
 	
-	resultset = soup.find('table', {"id":"threadslist"}).findAll('tbody')
+	resultset = soup.findAll('table', {"class":"tblSearchResultRow"})
 
 	for result in resultset:
 	
-		try:
-		
-			if "threadbits_forum" in result['id']:
+		tdset = result.findAll('td')
+						
+		for td in tdset:
 
-				rows = result.findAll('tr')
-				
-				for row in rows:
+			try:
+							
+				if td['class'] == 'tdInfoSpec':
+								
+					data = td.getText()
+					data = str(formatData(cleanUpText(data))).strip("()")
 					
-					if len(row.attrs) == 0:
+						
+				if td['class'] == 'TdTitleDesc':
+								
+					strURL = td.find('a')['href']
 					
-						selectedrows = row.findAll('td')
 						
-						for selectedrow in selectedrows:
-
-							try:
+			except:
 							
-								if selectedrow['class'] == 'alt1':
-								
-									data = selectedrow.getText()
-									data = str(formatData(cleanUpText(data))).strip("()")
-									
-						
-								if selectedrow['class'] == 'alt1 TdTitleDesc':
-								
-									strURL = selectedrow.find('a')['href']
-									
-						
-							except:
-							
-								continue
+				continue
 								
 
-						strURL = correctURL(strURL)
+		strURL = correctURL(strURL)
 							
-						data = data + ", " + strURL
+		data = data + ", " + strURL
 
-						fileAppend(outputfile, data+"\n")
+		fileAppend(outputfile, data+"\n")
 
-		except:
-		
-			continue
+	
 			
 
 def cleanUpText(strText):
@@ -331,11 +470,10 @@ def proxyFetch(alamatURL):
 		
 		divs = browser.find_by_value('Go').first.click()
 		
-		strHTML = browser.html
-
-		time.sleep(8)
+		time.sleep(10)
 		
 		strHTML = browser.html
+
 		# uncomment this if you want to print HTML source to screen
 		#strHTML = strHTML.encode('ascii', 'ignore').decode('ascii')
 		#print strHTML
@@ -442,117 +580,46 @@ def correctURL(strURL):
 		
 	return strURL
 	
-	
 
-def updateConfig(area, option, value):
-	#
-	# update config file upon subprocess
 
-	if not os.path.isfile(fullConfigName):
-
-		print "create file"
-		
-	if os.path.isfile(fullConfigName):
-
-		parser = SafeConfigParser()
-		parser.read(configName)
-
-		if parser.has_section(area) == False:
-
-			parser.add_section(area)
-			
-		print area, option, value
-		
-		parser.set(area, option, value)
-			
-		with open (r'simple.ini', 'wb') as configfile:
-
-			parser.write(configfile)
-			
-		
+def crawl(AREA, minPRICE, maxPRICE):
 	
-def readConfig(area, option):
-	#
-	# read config file for last visit
-
-	parser = SafeConfigParser()
-	parser.read(configName)
-
-	if parser.has_section(area) == False:
-
-		parser.add_section(area)
-	
-	options = parser.items(area)
-	
-	existence = False
-	
-	for item in options:
-	
-		if item[0] == option:
-		
-			existence += True
-		
-	if existence == False:
-	
-		parser.set(area, option, '0')
-	
-		with open (r'simple.ini', 'wb') as configfile:
-				
-			parser.write(configfile)
-			
-	value = parser.get(area, option)
-	
-	return value
-	
-
-def clearScreen():
-
-	if os.name == "posix":
-		
-		os.system("clear")
-			
-	else:
-		
-		os.system("cls")
-	
-	
-# below are the main lines of this script
-if len(sys.argv) > 0:
-
-	try:
-	
-		AREA = sys.argv[1]
-		
-	except IndexError:
-	
-		AREA = defaultAREA
-	
-	alamatURL= alamatURL + AREA + "/"
+	alamatURL = "http://rumahdijual.com/carirumah.php?transaksi=BELI&jenis=RUMAH&kota="+AREA+"&minprice="+minPRICE+"&maxprice="+maxPRICE
 	
 	clearScreen()
 	
-	lastpage = int(readConfig(AREA, 'target'))
+	pages = readConfig(AREA, 'pages')
 	
-	if (lastpage == 0):
+	if (int(pages) == 0):
 	
 		msgBody = switchFetch(alamatURL)
 		
-		lastpage = getLastPage(msgBody)
+		pages = getLastPage(msgBody)
 		
-		updateConfig(AREA, 'target', str(lastpage))
+		updateConfig(AREA, 'pages', str(pages))
+		
+	pages = readConfig(AREA, 'pages')
 	
-	lastvisit = int(readConfig(AREA, 'visit'))
+	visit = readConfig(AREA, 'visit')
+
+	for i in range(int(visit)+1, int(pages)+1):
 	
-	for i in range(lastvisit+1, lastpage+1):
-	
-		cursorURL = alamatURL + "index" + str(i) + ".html"
+		cursorURL = alamatURL = "http://rumahdijual.com/carirumah.php?sort=2&transaksi=BELI&jenis=RUMAH&kota="+AREA+"&minprice="+minPRICE+"&maxprice="+maxPRICE+"&p="+str(i)
 		
 		clearScreen()
 		
-		sys.stdout.write("fetching data from: "+ cursorURL+ "... "+str(i)+" from " +str(lastpage)+"\r")
+		sys.stdout.write("fetching data from: "+ cursorURL+ "... "+str(i)+" from " +str(pages))
 	
 		msgBody = switchFetch(cursorURL)
 		
 		getDatafromPage(msgBody)
 		
 		updateConfig(AREA, 'visit', str(i))
+		
+		visit = readConfig(AREA, 'visit')
+			
+		sys.stdout.flush()
+		
+		
+# below are the main lines of this script
+crawl(AREA, minPRICE, maxPRICE)
