@@ -489,7 +489,7 @@ def proxyFetch(alamatURL):
 			
 		print "retrying..."
 		
-		strHTML = proxyFetch(alamatURL)
+		strHTML = switchFetch(alamatURL)
 	
 	return strHTML
 	
