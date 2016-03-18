@@ -3,11 +3,20 @@
 Buying a house is an important decision and sometimes a though one when money is scarce.
 
 This time I created a script to collect data of house in "House for Sale" website.
-Once your data of interest has been put to a csv file, you can do anything with it.
-You can analyze it using a spreadsheet, or write an R program to recommend you which house is the best to buy.
 
-For example:
-You have selected to collect data of house range between 700 to 800 million rupiahs. You want to know which house is the best to buy.
+You can use it to gather house data within a certain price range.
+You want to know what building area or land area is provided within that price range.
+
+Once your data of interest has been put to a csv file, you can do anything with it.
+
+* You can analyze it using a spreadsheet;
+* or write an R program to recommend you which house is the best to buy;
+* make a visualization to see the fluctuation of price vs land or building area;
+* 
+
+##Example Case
+You have opted to gather data of house with price ranging from 700 to 800 million rupiahs.
+You want to know which house is the best to buy.
 
 You can make an additional column that contains averaged data:
 
