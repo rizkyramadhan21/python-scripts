@@ -7,16 +7,19 @@ This time I created a script to collect data of house in "House for Sale" websit
 You can use it to gather house data within a certain price range.
 You want to know what building area or land area is provided within that price range.
 
-Once your data of interest has been put to a csv file, you can do anything with it.
+##Example Case
+You have opted to gather data of house with price ranging from 600 to 700 million rupiahs.
+You want to know which house is the best to buy.
+
+
+![Command Line Screenshot of getHouseforSale.py](https://github.com/jansenicus/python-scripts/blob/master/HOUSE/houseforsale.png)
+
+
+Once your data of interest has been put to a csv file, you can do anything with it:
 
 * You can analyze it using a spreadsheet;
 * or write an R program to recommend you which house is the best to buy;
 * make a visualization to see the fluctuation of price vs land or building area;
-* 
-
-##Example Case
-You have opted to gather data of house with price ranging from 700 to 800 million rupiahs.
-You want to know which house is the best to buy.
 
 You can make an additional column that contains averaged data:
 
@@ -24,9 +27,9 @@ You can make an additional column that contains averaged data:
 * the average land area in square meters;
 * the average building area in square meters.
 
-The best house options range to select is:
+The best house option to select is where the lower price meets the upper specification:
 
-* the price is less than the average area;
+* the price is less than the average price;
 * the building is greater than the average building area;
 * the land area is greater than the average land area.
 
