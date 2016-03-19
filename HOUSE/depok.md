@@ -265,7 +265,7 @@ mostSpacious(df)
     building    63
         land   160
        price   185
-         url   [http://rumahdijual.com/depok/957749-rumah-lt-160-lb-63-di-cilangkap-depok-sebelum.html](http://rumahdijual.com/depok/957749-rumah-lt-160-lb-63-di-cilangkap-depok-sebelum.html)
+         url   http://rumahdijual.com/depok/957749-rumah-lt-160-lb-63-di-cilangkap-depok-sebelum.html
     
     MOST SPACIOUS BUILDING
     -----------------
