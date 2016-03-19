@@ -230,7 +230,7 @@ df = visualizeData('depok', 100, 200);
 ```
 
 
-![png](output_22_0.png)
+![png](img/output_22_0.png)
 
 
 ### Analyze the Data of House Prices Between 100 - 200 Mio IDR
@@ -819,7 +819,7 @@ df = visualizeData('depok', 300, 400);
 ```
 
 
-![png](output_32_0.png)
+![png](img/output_32_0.png)
 
 
 ### Analyze the Data of House Price Between 300 - 400 Mio IDR
@@ -1767,7 +1767,7 @@ df = visualizeData('depok', 400, 500);
 ```
 
 
-![png](output_41_0.png)
+![png](img/output_41_0.png)
 
 
 ### Analyze the Data of House Price Between 400 - 500 Mio IDR
@@ -2644,7 +2644,7 @@ df = visualizeData('depok', 500, 600);
 ```
 
 
-![png](output_50_0.png)
+![png](img/output_50_0.png)
 
 
 ### Analyze the Data of House Price Between 500 - 600 Mio IDR
@@ -3666,7 +3666,7 @@ df = visualizeData('depok', 600, 700);
 ```
 
 
-![png](output_59_0.png)
+![png](img/output_59_0.png)
 
 
 ### Analyze the Data of House Price Between 600 - 700 Mio IDR
@@ -4266,7 +4266,7 @@ df = visualizeData('depok', 750, 800);
 ```
 
 
-![png](output_68_0.png)
+![png](img/output_68_0.png)
 
 
 ### Analyze the Data of House Price Between 750 - 800 Mio IDR
@@ -4581,7 +4581,7 @@ df = visualizeData('depok', 800, 900);
 ```
 
 
-![png](output_77_0.png)
+![png](img/output_77_0.png)
 
 
 
@@ -4958,7 +4958,7 @@ df = visualizeData('depok', 900, 1000);
 ```
 
 
-![png](output_86_0.png)
+![png](img/output_86_0.png)
 
 
 ### Analyze the Data of House Price Between 900 - 1000 mio IDR
@@ -5269,7 +5269,7 @@ df = visualizeData('depok', 1000, 1100);
 ```
 
 
-![png](output_95_0.png)
+![png](img/output_95_0.png)
 
 
 ### Analyze the Data of House Price Between 1000 - 1100 Mio IDR
@@ -5456,7 +5456,7 @@ df = visualizeData('depok', 1100, 1200);
 ```
 
 
-![png](output_103_0.png)
+![png](img/output_103_0.png)
 
 
 ### Analyze the Data of House Price Between 1100 - 1200 mio IDR
@@ -5670,7 +5670,7 @@ df = visualizeData('depok', 1200, 1300);
 ```
 
 
-![png](output_112_0.png)
+![png](img/output_112_0.png)
 
 
 ### Analyze the Data of House Price Between 1200 - 1300 Mio IDR
