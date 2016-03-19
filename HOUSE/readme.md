@@ -46,3 +46,4 @@ that is available within the price or a price range you have selected.
 Of course you are still human and have certain subjective preference to make the decision of buying a house, 
 but looking at the data may help you to make better decision.
 
+[More...](https://github.com/jansenicus/python-scripts/blob/master/HOUSE/depok.md)
