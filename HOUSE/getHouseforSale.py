@@ -4,7 +4,7 @@
 # (c) Jansen A. Simanullang
 # 17.03.2016
 # 18.03.2016 17:11
-# 23.03.2016 11:44
+# 23.03.2016 18:01
 #-------------------------------------------------
 # BACKGROUND
 # if you live in Indonesia and want to buy a house
@@ -64,11 +64,11 @@ defaultAREA = "depok"
 defaultMinprice = 100000000
 defaultMaxprice = 2000000000
 disableImage = True
-phantomMode = False
+phantomMode = True
 # set phantom mode to True, to make the crawling invisible
 # When phantomMode set to False, the crawling will be visible
 	
-scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "\\"
+scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + os.sep
 fullConfigName = scriptDirectory + configName
 
 def clearScreen():
@@ -76,11 +76,11 @@ def clearScreen():
 	if os.name == "posix":
 		
 		os.system("clear")
-			
+
 	else:
 		
 		os.system("cls")
-		
+
 		
 def readConfig(area, option):
 	#
@@ -659,7 +659,7 @@ def crawl(AREA, minPRICE, maxPRICE):
 		
 		sys.stdout.write(" fetched...")
 		
-		playWav(scriptDirectory+"wav\\spinning-coin-1.wav")
+		playWav(scriptDirectory+os.path.join("wav","spinning-coin-1.wav"))
 		
 		sys.stdout.flush()
 
@@ -669,7 +669,7 @@ def crawl(AREA, minPRICE, maxPRICE):
 			
 			os.remove(scriptDirectory+"resume.ini")
 			
-			playWav(scriptDirectory+"wav\\burp-1.wav")		
+			playWav(scriptDirectory+os.path.join("wav","burp-1.wav"))
 
 	
 # below are the main lines of this script
