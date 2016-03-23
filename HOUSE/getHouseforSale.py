@@ -4,6 +4,7 @@
 # (c) Jansen A. Simanullang
 # 17.03.2016
 # 18.03.2016 17:11
+# 23.03.2016 11:44
 #-------------------------------------------------
 # BACKGROUND
 # if you live in Indonesia and want to buy a house
@@ -26,7 +27,8 @@
 # * random select user agent
 # * disable images in Chrome
 # * limit search result criteria
-# * sound wave signalling stages of process
+# * sound of spinning coin after a page processed
+# * phantom (invisible) mode support
 #
 # CONFIGURATION
 # * config file:
@@ -57,13 +59,16 @@ from random import randint
 from ConfigParser import SafeConfigParser
 
 alamatURL = "http://rumahdijual.com/"
-configName = 'property.ini'
+configName = 'resume.ini'
 defaultAREA = "depok"
 defaultMinprice = 100000000
 defaultMaxprice = 2000000000
 disableImage = True
+phantomMode = False
+# set phantom mode to True, to make the crawling invisible
+# When phantomMode set to False, the crawling will be visible
 	
-scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "/"
+scriptDirectory = os.path.dirname(os.path.abspath(__file__)) + "\\"
 fullConfigName = scriptDirectory + configName
 
 def clearScreen():
@@ -104,7 +109,7 @@ def readConfig(area, option):
 	
 		parser.set(area, option, defaultValue[option])
 	
-		with open (r'property.ini', 'wb') as configfile:
+		with open (r'resume.ini', 'wb') as configfile:
 				
 			parser.write(configfile)
 			
@@ -133,7 +138,7 @@ def updateConfig(area, option, value):
 			
 		parser.set(area, option, value)
 			
-		with open (r'property.ini', 'wb') as configfile:
+		with open (r'resume.ini', 'wb') as configfile:
 
 			parser.write(configfile)
 
@@ -444,22 +449,29 @@ def proxyFetch(alamatURL):
 	
 	try:
 	
-		try:
-			# preferably using Chrome
-			browser = Browser('chrome')
-			
-			if disableImage == True:
-			
-				browser.driver.close()
-
-				options = webdriver.ChromeOptions()
-				options.add_experimental_option("excludeSwitches", ["ignore-certificate-errors"])
-				options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images":2})
-				browser.driver = webdriver.Chrome(chrome_options=options)
 		
-		except:
-			# "please install Chrome Web Driver from https://sites.google.com/a/chromium.org/chromedriver/downloads"
-			browser = Browser()
+		if phantomMode:
+		
+			browser = Browser('phantomjs')
+	
+		else:
+			
+			try:
+				# preferably using Chrome
+				browser = Browser('chrome')
+				
+				if disableImage == True:
+				
+					browser.driver.close()
+
+					options = webdriver.ChromeOptions()
+					options.add_experimental_option("excludeSwitches", ["ignore-certificate-errors"])
+					options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images":2})
+					browser.driver = webdriver.Chrome(chrome_options=options)
+			
+			except:
+				# "please install Chrome Web Driver from https://sites.google.com/a/chromium.org/chromedriver/downloads"
+				browser = Browser()
 		
 		browser.driver.maximize_window()
 
@@ -645,13 +657,20 @@ def crawl(AREA, minPRICE, maxPRICE):
 		
 		visit = readConfig(AREA, 'visit')
 		
+		sys.stdout.write(" fetched...")
+		
+		playWav(scriptDirectory+"wav\\spinning-coin-1.wav")
+		
+		sys.stdout.flush()
+
 		if int(i) == int(pages):
 		
-			sys.stdout.write("\n FETCHING PROCESS FINISHED.\n\n Please check OUTPUT folder.\n Output written as file: " + AREA + "-between-" + str(int(minPRICE)/1000000)+"-"+str(int(maxPRICE)/1000000)+".csv\n\n HAVE A NICE DAY! GOD BLESS YOU!")
-			playWav("wav/burp-1.wav")		
+			sys.stdout.write("\n FETCHING PROCESS FINISHED.\n\n Please check OUTPUT folder.\n Output written as file: " + AREA + "-between-" + str(int(minPRICE)/1000000)+"-"+str(int(maxPRICE)/1000000)+".csv\n\n HAVE A NICE DAY! GOD BLESS YOU!\n\n")
+			
+			os.remove(scriptDirectory+"resume.ini")
+			
+			playWav(scriptDirectory+"wav\\burp-1.wav")		
 
-		sys.stdout.flush()
-		playWav("wav/spinning-coin-1.wav")
 	
 # below are the main lines of this script
 crawl(AREA, minPRICE, maxPRICE)
