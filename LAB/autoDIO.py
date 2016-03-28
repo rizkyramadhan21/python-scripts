@@ -2,12 +2,15 @@
 #!/usr/bin/python
 #---------------------------------------
 # autoDIO.py
+# Automated Digital Office
 # (c) Jansen A. Simanullang
 # 03.03.2016 19:24
 # 07.03.2016 17:35
+# 28.03.2016 16:17 disposisi_masuk
 #---------------------------------------
-# usage: python autoDIO.py
-# automated digital office
+# usage:
+# python autoDIO.py
+#
 # TODO: send PDF via Telegram to team
 #---------------------------------------
 
@@ -182,7 +185,7 @@ def findTeam(strKeyword, TermsMap):
 
 			teamName = k
 		
-			return teamName		
+	return teamName		
 	
 
 def allKeywords(TermsMap):
@@ -199,12 +202,17 @@ def allKeywords(TermsMap):
 
 
 
-def getInbox(strHTML):
+def getInbox(k, strHTML):
 
 	soup = BeautifulSoup(strHTML)
-	table = soup.findAll("table", {"class" : "boxsurat table table-striped table-hover table-condensed table-responsive table-bordered"})
-	soup = BeautifulSoup(str(table))
 
+	if k == 'surat_masuk':
+		class_table = "boxsurat table table-striped table-hover table-condensed table-responsive table-bordered"
+	elif k == 'disposisi_masuk':
+		class_table = "boxsurat table table-hover table-condensed table-responsive table-bordered"
+
+	table = soup.findAll("table", {"class" : class_table})
+	soup = BeautifulSoup(str(table))
 	rows = soup.findAll("tr")
 	read = soup.findAll("tr", {"status-baca":"Y"})
 	unread = soup.findAll("tr", {"status-baca":"N"})
@@ -281,177 +289,196 @@ def login(username, password):
 	browser.fill('password', password)
 
 	browser.find_by_name("login").first.click()
-	time.sleep(2)
+	time.sleep(3)
 	
 	browser.visit('https://bristars.bri.co.id/bristars/menus/childs/MTE%3D')
 	time.sleep(1)
 	browser.find_by_text(" Digital Office DiO [A]").first.click()
 	time.sleep(2)
-	browser.visit('http://172.18.65.190/eoffice/surat/surat_masuk')
-	time.sleep(1)
 
-	strHTML = browser.html
-	global colheaders
-	read, unread, colheaders = getInbox(strHTML)
-	anyReadUnread = len(read)+len(unread)
+	Inbox = {'surat_masuk':'http://172.18.65.190/eoffice/surat/surat_masuk', 'disposisi_masuk':'http://172.18.65.190/eoffice/disposisi/disposisi_masuk'}
 
-	while (anyReadUnread):
+	for k, v in Inbox.iteritems():
+
+		browser.visit(v)
+		time.sleep(1)
+
+		strHTML = browser.html
+		global colheaders
+
+		read, unread, colheaders = getInbox(k, strHTML)
+
+		if k == 'surat_masuk':
+			anyReadUnread = len(read)+len(unread)
+
+		if k == 'disposisi_masuk':
+			anyReadUnread = len(unread)
+
+		while (anyReadUnread):
 	
-		print "loop continues"
-		#----------------------------------------------------------------
-		# cek surat yang belum dibaca
-		#----------------------------------------------------------------
-		if len(unread):
+			print "loop continues", k, len(unread)
+			#----------------------------------------------------------------
+			# cek surat yang belum dibaca
+			#----------------------------------------------------------------
+			if len(unread):
 
-			divs = browser.find_by_xpath('//div[@class="list-group"]')
-			trs = divs.find_by_xpath('//tr[@status-baca="N"]')
+				divs = browser.find_by_css('.boxsurat')
+				trs = divs.find_by_xpath('//tr[@status-baca="N"]')
 
-			Letters = getLetter(unread)
-			strPerihal = Letters[0].split("|")[1]
-			strTanggal = Letters[0].split("|")[2]
-	
+				Letters = getLetter(unread)
+				strPerihal = Letters[0].split("|")[1]
+				strTanggal = Letters[0].split("|")[2]
 
-		#----------------------------------------------------------------
-		# cek surat yang sudah dibaca
-		#----------------------------------------------------------------
-		if len(read):
+			#----------------------------------------------------------------
+			# cek surat masuk yang sudah dibaca namun belum disposisi
+			#----------------------------------------------------------------
+			if len(read) and k == 'surat_masuk':
 
-			divs = browser.find_by_xpath('//div[@class="list-group"]')
-			trs = divs.find_by_xpath('//tr[@status-baca="Y"]')
-			Letters = getLetter(read)
-			strPerihal = Letters[0].split("|")[1]
-			strTanggal = Letters[0].split("|")[2]
+				divs = browser.find_by_css('.boxsurat')
+				trs = divs.find_by_xpath('//tr[@status-baca="Y"]')
+				Letters = getLetter(read)
+				strPerihal = Letters[0].split("|")[1]
+				strTanggal = Letters[0].split("|")[2]
 		
-		print strPerihal
-		trs.first.click()
-		browser.driver.execute_script("window.scrollTo(0, 0)")
-		time.sleep(5)
-		browser.find_by_text("LIHAT INFORMASI SURAT").first.click()
-		time.sleep(1)
+			print strPerihal
 
-		#----------------------------------------------------------------
-		# clicking available button for demonstration purposes
-		#----------------------------------------------------------------
+			trs.first.click()
+
+			browser.driver.execute_script("window.scrollTo(0, 0)")
+			time.sleep(5)
+			browser.find_by_text("LIHAT INFORMASI SURAT").first.click()
+			time.sleep(1)
+
+			#----------------------------------------------------------------
+			# clicking available button for demonstration purposes
+			#----------------------------------------------------------------
 	
-		# button = browser.find_by_id('lihat')
-		# print button.text
-		# time.sleep(3)
-		# button.click()
+			# button = browser.find_by_id('lihat')
+			# print button.text
+			# time.sleep(3)
+			# button.click()
 
-		# button = browser.find_by_id('sembunyi')
-		# print button.text
-		# time.sleep(3)
-		# button.click()
+			# button = browser.find_by_id('sembunyi')
+			# print button.text
+			# time.sleep(3)
+			# button.click()
 
-		window_before = browser.driver.window_handles[0]
+			window_before = browser.driver.window_handles[0]
 
-		#----------------------------------------------------------------
-		# clicking the print button
-		#----------------------------------------------------------------
+			#----------------------------------------------------------------
+			# clicking the print button
+			#----------------------------------------------------------------
 	
 	
-		divs = browser.find_by_xpath('//div[@class="pull-right"]')
-		button = divs.find_by_id('btn_print')
-		print button.text
-		time.sleep(3)
-		divs.first.click()
-		time.sleep(3)
+			divs = browser.find_by_xpath('//div[@class="pull-right"]')
+			button = divs.find_by_id('btn_print')
+			print button.text
+			time.sleep(3)
+			divs.first.click()
+			time.sleep(3)
 
-		window_after = browser.driver.window_handles[1]
+			window_after = browser.driver.window_handles[1]
 
-		#----------------------------------------------------------------
-		# switch to another window, grab the HTML, remove 'script' tag, 
-		# dump cleaned HTML to HTML file, convert HTML file to PDF
-		#----------------------------------------------------------------
+			#----------------------------------------------------------------
+			# switch to another window, grab the HTML, remove 'script' tag, 
+			# dump cleaned HTML to HTML file, convert HTML file to PDF
+			#----------------------------------------------------------------
 
-		browser.driver.switch_to_window(window_after)
+			browser.driver.switch_to_window(window_after)
 
-		strHTML = browser.html
-		strHTML = strHTML.encode('ascii', 'ignore').decode('ascii')
+			strHTML = browser.html
+			strHTML = strHTML.encode('ascii', 'ignore').decode('ascii')
 
-		strNamaFile = "result.html"
-		strHTML = removeTags(["script"], strHTML)
+			strNamaFile = "result.html"
+			strHTML = removeTags(["script"], strHTML)
 
-		fileCreate(strNamaFile, str(strHTML))
-		strNamaFile = strTanggal+"-" + strPerihal + '.pdf'
+			fileCreate(strNamaFile, str(strHTML))
+			strNamaFile = strTanggal+"-" + strPerihal + '.pdf'
 	
-		pdfkit.from_file("/home/administrator/NOTIFIKASI/LAB/result.html", strNamaFile)
-		browser.driver.close()
+			pdfkit.from_file("/home/administrator/NOTIFIKASI/LAB/result.html", "OUTPUT/"+strNamaFile)
+			browser.driver.close()
 
-		browser.driver.switch_to_window(window_before)
-		print browser.driver.current_url
+			browser.driver.switch_to_window(window_before)
+			print browser.driver.current_url
 
-		#----------------------------------------------------------------
-		# DISPOSITION
-		#----------------------------------------------------------------
+			#----------------------------------------------------------------
+			# DISPOSITION
+			#----------------------------------------------------------------
 
-		button = browser.find_by_xpath('//button[text()="Disposisi"]')
-		print button.text
-		time.sleep(1)
-		button.click()
+			button = browser.find_by_xpath('//button[text()="Disposisi"]')
+			print button.text
+			time.sleep(1)
+			button.click()
 
-		button = browser.find_by_xpath('//input[@value="banyak"]')
-		button.click()
+			button = browser.find_by_xpath('//input[@value="banyak"]')
+			button.click()
 
-		element = browser.find_by_xpath('//select[@id="banyak"]//option').last.click()
+			element = browser.find_by_xpath('//select[@id="banyak"]//option').last.click()
 
-		element = browser.find_by_xpath('//input[@id="pilih_banyak"]').click()
+			element = browser.find_by_xpath('//input[@id="pilih_banyak"]').click()
 	
-		element = browser.find_by_xpath('//input[@class="banyak"]')
+			element = browser.find_by_xpath('//input[@class="banyak"]')
 
-		#----------------------------------------------------------------
-		# Find the team name to be disposed of the letters
-		#----------------------------------------------------------------
+			#----------------------------------------------------------------
+			# Find the team name to be disposed of the letters
+			#----------------------------------------------------------------
 	
-		Keywords = allKeywords(TermsMap)
+			Keywords = allKeywords(TermsMap)
 
-		Words = strPerihal.upper().split(" ")
+			Words = strPerihal.upper().split(" ")
 
-		teamName = defaultTeamName
+			teamName = defaultTeamName
 
-		for keyword in Keywords:
+			for keyword in Keywords:
 
-			for word in Words:
-				print word, keyword
-				if word == keyword :
+				for word in Words:
+					print word, keyword
+					if word == keyword :
 
-					teamName = findTeam(keyword, TermsMap)
+						teamName = findTeam(keyword, TermsMap)
 
-					print teamName, word
+						print teamName, word
 
-		#----------------------------------------------------------------
-		# clicking the name of each worker
-		#----------------------------------------------------------------
+			#----------------------------------------------------------------
+			# clicking the name of each worker
+			#----------------------------------------------------------------
 
-		for elem in element:
+			for elem in element:
 
-			for team in TeamMembers[teamName]:
+				for team in TeamMembers[teamName]:
 			
-				if elem["value"] == team:
+					if elem["value"] == team:
 
-					print team, elem["value"], "--> box checked"
+						print team, elem["value"], "--> box checked"
 
-					elem.click()
-					time.sleep(1)
+						elem.click()
+						time.sleep(1)
 
-		browser.fill("CATATAN_BANYAK", strPerihal+ " - Disposisi by bot")
+			browser.fill("CATATAN_BANYAK", strPerihal+ " - Disposisi by bot")
 
 	
 
-		button = browser.find_by_xpath('//button[@id="btn_proses"]')
-		print button.text
-		time.sleep(1)
-		button.click()
-		time.sleep(1)
-		#----------------------------------------------------------------
-		# LOOP ENDS HERE
-		# back to loop until all letters read and disposed
-		#----------------------------------------------------------------
-		browser.visit('http://172.18.65.190/eoffice/surat/surat_masuk')
-		time.sleep(4)
-		strHTML = browser.html
-		read, unread, colheaders = getInbox(strHTML)				
-		anyReadUnread = len(read)+len(unread)
+			button = browser.find_by_xpath('//button[@id="btn_proses"]')
+			print button.text
+			time.sleep(1)
+			button.click()
+			time.sleep(1)
+			#----------------------------------------------------------------
+			# LOOP ENDS HERE
+			# back to loop until all letters read and disposed
+			#----------------------------------------------------------------
+			browser.visit(v)
+			time.sleep(4)
+			strHTML = browser.html
+			read, unread, colheaders = getInbox(k, strHTML)
+
+			if k == 'surat_masuk':
+				anyReadUnread = len(read)+len(unread)
+
+			if k == 'disposisi_masuk':
+				anyReadUnread = len(unread)
+
+
 
 	browser.driver.close()
 
