@@ -413,7 +413,15 @@ def login(username, password):
 			button = browser.find_by_xpath('//input[@value="banyak"]')
 			button.click()
 
-			element = browser.find_by_xpath('//select[@id="banyak"]//option').last.click()
+			option = browser.find_by_xpath('//select[@id="banyak"]//option')
+
+			for i in range(0, len(option)):
+
+				if tujuanDisposisi.upper() in option[i].text:
+			
+					idxOption = i
+
+			option[idxOption].click()
 
 			element = browser.find_by_xpath('//input[@id="pilih_banyak"]').click()
 	
@@ -484,5 +492,6 @@ def login(username, password):
 
 
 
+tujuanDisposisi = 'pekerja' # atau 'pimpinan'
 
 login(username, password)
