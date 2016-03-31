@@ -5,6 +5,10 @@
   example: 'Machine Learning Foundations: A Case Study Approach'
 - usage:
 ```
-    python CourseraDownloader.pyc
+    python CourseraDownloader-2.7.pyc
 ```
-if you find it useful please donate: vera.verum.veritas@gmail.com
+if you find it useful please donate: vera.verum.veritas@gmail.com, I am looking for a new job.
+- Python packages requirements:
+```
+os, re, sys, splinter, selenium, time, urllib2
+```
