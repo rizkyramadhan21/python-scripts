@@ -9,7 +9,7 @@
 ```
 - Python packages requirements:
 ```
-os, re, sys, splinter, selenium, time, urllib2
+  os, re, sys, splinter, selenium, time, urllib2
 ```
 
 if you find it useful please donate: vera.verum.veritas@gmail.com, I am looking for a new job.
