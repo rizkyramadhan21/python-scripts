@@ -1,12 +1,28 @@
 # Coursera Downloader
 
 ## Download all videos in all weeks of all lesson in one specified course.
+
+- downloading from the old 'http://class.coursera.org' is easy since:
+    - it is a simple html and can be parsed with html parser;
+    - all links to the course material is provided in one page url;
+    - you can use many popular software like 'DownThemAll' to download all the materials you wish to download;
+
+- downloading from the new 'https://www.coursera.org' however harder since:
+    - it is javascript rendered and must be parsed using a browser engine;
+    - links to the course materials are spread within many page urls;
+
+- this compiled python gives solution to download all videos, subtitles and transcripts in:
+```
+    https://www.coursera.org/
+```
 - usage:
 ```
     python CourseraDownloader-2.7.pyc
 ```
+- You will be prompted to supply user (email) and password for your Coursera account;
+- Your credentials saved locally into a file named coursera.pass placed in the same folder of this script.
 
-- You will be prompted for full course name:
+- You will be prompted to select the course:
 ```
 -----------------------------------------------------------------------
 
@@ -37,6 +53,8 @@ There are 13 courses available
 
 [  ] Please pick course number!
 ```
+- bot will crawl all the lesson in all weeks of your selected course;
+- it then will download all the videos, subtitles and transcripts in your selected course.
 
 ## Requirements
 - Python packages requirements:
