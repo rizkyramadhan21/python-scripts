@@ -20,6 +20,27 @@
     python CourseraDownloader-2.7.pyc
 ```
 - You will be prompted to supply user (email) and password for your Coursera account;
+```
+-----------------------------------------------------------------------
+
+-------------------- WELCOME TO COURSERA DOWNLOADER -------------------
+please kindly support my daily sustenance: vera.verum.veritas@gmail.com
+
+-----------------------------------------------------------------------
+
+
+one time setup user and password
+
+Enter your e-mail address: vera.verum.veritas@gmail.com
+vera.verum.veritas@gmail.com
+
+Enter your Coursera password: somesecretwords
+***************
+
+User and password has been saved to coursera.pass file.
+Please delete the file if you want to change your credentials.
+
+```
 - Your credentials saved locally into a file named coursera.pass placed in the same folder of this script.
 
 - You will be prompted to select the course:
