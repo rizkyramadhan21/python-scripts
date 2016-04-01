@@ -6,10 +6,12 @@
     - it is a simple html and can be parsed with html parser;
     - all links to the course material is provided in one page url;
     - you can use many popular software like 'DownThemAll' to download all the materials you wish to download;
+    - there are many solutions already provided in github.com for this purpose;
 
-- downloading from the new 'https://www.coursera.org' however harder since:
-    - it is javascript rendered and must be parsed using a browser engine;
+- downloading from the new 'https://www.coursera.org' however is harder since:
+    - it is javascript rendered and must be parsed using a browser engine, meaning: the html elements you want to parse may not be visible until you view it in a browser;
     - links to the course materials are spread within many page urls;
+    - you will get tired of downloading after 144 urls;
 
 - this compiled python gives solution to download all videos, subtitles and transcripts in:
 ```
