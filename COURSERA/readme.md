@@ -43,7 +43,7 @@ User and password has been saved to coursera.pass file.
 Please delete the file if you want to change your credentials.
 
 ```
-- Your credentials saved locally into a file named coursera.pass placed in the same folder of this script.
+- Your credentials are encrypted and then saved locally into a file named coursera.pass placed in the same folder of this script.
 
 - You will be prompted to select the course:
 ```
