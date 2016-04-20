@@ -29,6 +29,7 @@ key1 = key1.encode("utf-8")
 key2 = key2.decode("utf-8")
 key2 = key2.encode("utf-8")
 defaultTeamName = "ALL"
+scriptRoot = os.path.dirname(os.path.abspath(__file__)) + os.sep
 #--------------------------------
 
 if os.name == 'posix':
@@ -165,7 +166,7 @@ def mapTerms():
 
 	teamTerms["TSI"] = ["BUZZ", "PC", "VSAT", "V-SAT", "WEB", "LAS", "VIRUS"]
 	teamTerms["EDC"] = ["EDC"]
-	teamTerms["ATM"] = ["ATM", "PONSEL", "HP"]
+	teamTerms["ATM"] = ["ATM", "CDM", "CRM", "PONSEL", "HP"]
 	teamTerms["ALL"] = ["RISIKO", "PULSA", "IT", "DEVICE", "PEMBERITAHUAN", "RELOKASI", "BISS", "PENDAFTARAN", "SECURITY", "PERMOHONAN"]
 
 	return teamTerms
@@ -395,7 +396,7 @@ def login(username, password):
 			fileCreate(strNamaFile, str(strHTML))
 			strNamaFile = strTanggal+"-" + strPerihal + '.pdf'
 	
-			pdfkit.from_file("/home/administrator/NOTIFIKASI/LAB/result.html", "OUTPUT/"+strNamaFile)
+			pdfkit.from_file(scriptRoot + "result.html", "OUTPUT/"+strNamaFile)
 			browser.driver.close()
 
 			browser.driver.switch_to_window(window_before)
