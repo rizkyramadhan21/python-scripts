@@ -7,6 +7,7 @@
 # 03.03.2016 19:24
 # 07.03.2016 17:35
 # 28.03.2016 16:17 disposisi_masuk
+# 25.04.2016 adjustStr16, assFile
 #---------------------------------------
 # usage:
 # python autoDIO.py
@@ -30,6 +31,7 @@ key2 = key2.decode("utf-8")
 key2 = key2.encode("utf-8")
 defaultTeamName = "ALL"
 scriptRoot = os.path.dirname(os.path.abspath(__file__)) + os.sep
+passFile = '.pass'
 #--------------------------------
 
 if os.name == 'posix':
@@ -37,6 +39,23 @@ if os.name == 'posix':
 else:
 	os.system('cls')
 
+
+def adjustStr16(strInput):
+
+	multiples = int(math.ceil(len(strInput)/16.0))
+
+	remainder = len(strInput)%16
+	
+	#print("len: ", len(strInput), "multiples: ", multiples, "remainder: ", remainder)
+	
+	if remainder:
+		strInput = strInput.ljust((multiples*16))
+	else:
+		strInput = strInput
+		
+	return strInput
+	
+	
 
 def encrypt(strInput, key1, key2):
 	#--------------------------------
@@ -48,17 +67,13 @@ def encrypt(strInput, key1, key2):
 
 	obj = AES.new(key1, AES.MODE_CBC, key2)
 
-	remainder = len(strInput)/16.0 - len(strInput)/16 
-	quotient = len(strInput)/16
+	strInput = adjustStr16(strInput)
 
-	if remainder:
-		message = strInput.ljust(16*(quotient+1))
-
-
-
-	encryptedText = obj.encrypt(message)
+	encryptedText = obj.encrypt(strInput)
 
 	return encryptedText
+
+
 
 def createPass():
 
@@ -68,7 +83,7 @@ def createPass():
 	password = str(raw_input('Enter your BRISTARS password: '))
 	strInput = username + ":" + password
 	encryptedText = encrypt(strInput, key1, key2)
-	fileCreate(".pass",encryptedText)
+	fileCreate(passFile,encryptedText)
 
 	return username, password
 
@@ -255,11 +270,11 @@ def getLetter(read):
 	return Letters
 
 try:
-	username, password = getUserPass(".pass")
+	username, password = getUserPass(passFile)
 except:
 	createPass()
-	print "User and password has been saved to .pass file.\nPlease delete the file if you want to change your credentials."
-	username, password = getUserPass(".pass")
+	print "User and password has been saved to "+passFile+" file.\nPlease delete the file if you want to change your credentials."
+	username, password = getUserPass(passFile)
 
 
 
