@@ -3,7 +3,7 @@
 # fetchStatusATMOFF.py
 # (c) Jansen A. Simanullang, 11:15:55
 # 11.02.2016 19:27
-# 27.07.2016 18:31
+# 27.07.2016 18:40
 # to be used with telegram-bot plugin
 #---------------------------------------
 # usage:
@@ -301,7 +301,7 @@ def getATMStats(AREAID, table):
 
 				seqNo = seqNo +1
 
-				msgBody += "\n"+str(seqNo)+") "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\n\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[7].getText().replace("days", "hari ").replace("hours","jam") +"\nKETERANGAN:\n"+ tdcells[8].getText() +"\n"
+				msgBody += "\n"+str(seqNo)+") "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\n\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[8].getText().replace("days", "hari ").replace("hours","jam") +"\nKETERANGAN:\n"+ tdcells[10].getText() +"\n"
 
 	if msgBody == "":
 		msgBody = "Tidak ada ATM OFF kategori ini di wilayah kerja Anda."
