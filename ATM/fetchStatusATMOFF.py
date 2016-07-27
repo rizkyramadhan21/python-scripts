@@ -3,6 +3,7 @@
 # fetchStatusATMOFF.py
 # (c) Jansen A. Simanullang, 11:15:55
 # 11.02.2016 19:27
+# 27.07.2016 18:31
 # to be used with telegram-bot plugin
 #---------------------------------------
 # usage:
@@ -270,7 +271,7 @@ def getRowIndex(table, strSearchKey):
 	return rowIndex
 
 
-def getATMStats(table):
+def getATMStats(AREAID, table):
 
 	soup = BeautifulSoup(str(table))
 	
@@ -285,7 +286,8 @@ def getATMStats(table):
 	#print numRowsHead, numRows
 	msgBody = ""
 
-	
+	seqNo = 0
+
 	for i in range (0, numRows):
 
 		trs = BeautifulSoup(str(rows[i]))
@@ -293,17 +295,16 @@ def getATMStats(table):
 		tdcells = trs.findAll("td")
 		thcells = trs.findAll("th")
 
-		#print len(tdcells), len(thcells)
-
-
-
 		if tdcells:
 
+			if str(AREAID) in tdcells[6].getText():
 
-			msgBody += "\n"+tdcells[0].getText().upper()+") "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\n\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[7].getText().replace("days", "hari ").replace("hours","jam") +"\nKETERANGAN:\n"+ tdcells[8].getText() +"\n"
+				seqNo = seqNo +1
+
+				msgBody += "\n"+str(seqNo)+") "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\n\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[7].getText().replace("days", "hari ").replace("hours","jam") +"\nKETERANGAN:\n"+ tdcells[8].getText() +"\n"
 
 	if msgBody == "":
-		msgBody = "Tidak ada ATM OFF di wilayah kerja Anda."
+		msgBody = "Tidak ada ATM OFF kategori ini di wilayah kerja Anda."
 
 	return msgBody
 
@@ -517,18 +518,16 @@ if len(sys.argv) > 0:
 	AREAID = sys.argv[1]
 
 	msgBody =""
+	msgBody2 =""
 
 	strHeaderLine = "\n----------------------------------------\n"
 
+
+def createMessage(AREAID, alamatURL):
+
 	if AREAID.isdigit():
 
-		alamatURL = "http://172.18.65.42/statusatm/viewbyofflinecabang.pl?AREAID="+ AREAID + "&ERROR=DOWN_ST"
-
-		msgBody = getATMStats(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
-
-	else:
-
-		alamatURL = "http://172.18.65.42/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
+		msgBody = getATMStats(AREAID=AREAID, table=getWidestTable(getTableList(fetchHTML(alamatURL))))
 
 
 	if AREAID.lower() == "cro":
@@ -551,8 +550,25 @@ if len(sys.argv) > 0:
 
 		msgBody = getATMStatsALFA(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
 
+	return msgBody
 
-	if msgBody:	
 
-		msgBody = strHeaderLine +"ATM OFFLINE "+ AREAID.upper() + timestamp + strHeaderLine + msgBody
-		print msgBody
+alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
+msgBody += createMessage(AREAID, alamatURL)
+
+if msgBody:	
+
+	msgBody = strHeaderLine +"ATM OFFLINE (< 6 JAM) "+ AREAID.upper() + timestamp + strHeaderLine + msgBody
+	print msgBody
+
+
+alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
+msgBody2 = createMessage(AREAID, alamatURL)
+
+if msgBody2:	
+
+	msgBody2 = strHeaderLine +"ATM OFFLINE (>= 6 JAM) "+ AREAID.upper() + timestamp + strHeaderLine + msgBody2
+	print msgBody2
+
+
+
