@@ -1,0 +1,163 @@
+#-*- coding: utf-8 -*-
+#!/usr/bin/python
+#---------------------------------------
+# portaldwh.py
+# Automated Downloader
+# (c) Jansen A. Simanullang
+# 28.07.2016 downloaderLW321PN.py
+#---------------------------------------
+# usage:
+# python downloaderLW321PN.py
+#
+#---------------------------------------
+
+
+from urllib import urlopen
+from BeautifulSoup import BeautifulSoup
+from splinter import Browser
+from selenium import webdriver
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+import os, sys, math, time, xlrd
+from os import listdir
+from os.path import isfile, join
+
+#--------------------------------
+scriptRoot = os.path.dirname(os.path.abspath(__file__)) + os.sep
+downloadPath = '/home/bri/Downloads/'
+downDir = '/home/bri/Documents/LWPN'
+#--------------------------------
+
+if os.name == 'posix':
+	os.system('clear')
+else:
+	os.system('cls')
+
+
+
+def readXLCell(path, filename, a, b):
+
+	cellContent = ''
+
+	try:
+		# BACA ISI EXCEL
+		fullPath = path+os.sep+filename
+		xl_workbook = xlrd.open_workbook(fullPath)
+		first_sheet = xl_workbook.sheet_by_index(0)
+		cell = first_sheet.cell(a,b)
+		try:
+			cellContent = str(int(cell.value)).zfill(4)
+		except:
+			cellContent = cell.value
+	except:
+	
+		pass
+
+	return cellContent
+
+
+
+
+def renameAllFilesByCellContent(path, a, b):
+
+	files = [f for f in listdir(path) if isfile(join(path, f))]
+	
+	for f in files:
+		if f[0].isalpha():
+			cellContent = readXLCell(path, f, a, b)
+			print cellContent
+
+			try:
+				basicName = f[0:f.index("(")]+".xls"
+			except:
+				basicName = f
+
+
+			os.rename(path+os.sep+f, path+os.sep+cellContent+"-"+basicName)
+
+
+
+def downloadReport(downDir):
+	#--------------------------------
+	# downloadReport()
+	# uncomment below only for debugging, do not use at production
+	# print username, len(username), password, len(password)
+	#
+	#browser = Browser('Firefox', profile)
+	#browser.driver.maximize_window()
+
+
+	#--------------------------------
+	profile = {}
+	profile['browser.download.manager.showWhenStarting'] = 'false'
+	profile['browser.helperApps.alwaysAsk.force'] = 'false'
+	profile['browser.download.dir'] = downDir
+	profile['browser.download.folderList'] = 2
+	profile['browser.helperApps.neverAsk.saveToDisk'] = 'text/csv, application/csv, text/html,application/xhtml+xml,application/xml, application/octet-stream, application/pdf, application/x-msexcel,application/excel,application/x-excel,application/excel,application/x-excel,application/excel, application/vnd.ms-excel,application/x-excel,application/x-msexcel,image/png,image/jpeg,text/html,text/plain,application/msword,application/xml,application/excel,text/x-c'
+	profile['browser.download.manager.useWindow'] = 'false'
+	profile['browser.helperApps.useWindow'] = 'false'
+	profile['browser.helperApps.showAlertonComplete'] = 'false'
+	profile['browser.helperApps.alertOnEXEOpen'] = 'false'
+	profile['browser.download.manager.focusWhenStarting']= 'false'
+
+	browser = Browser('firefox',profile_preferences=profile)
+
+	#--------------------------------
+	browser.driver.maximize_window()
+
+	browser.visit('http://172.18.41.75/ReportServer/Pages/ReportViewer.aspx?%2fCR_2005%2fLW321PNSingleRow&rs%3aCommand=Render&kanwil=Q&CabangLogin=0&UkerLogin=0')
+
+	# KANWIL JAKARTA III	
+	selector = '#ReportViewerControl_ctl00_ctl03_ddValue > option:nth-child(19)'
+	browser.find_by_css(selector).click()
+
+
+	try:
+
+		for i in range (2,38):
+			# KANCA YANG BERSANGKUTAN
+			selector = '#ReportViewerControl_ctl00_ctl05_ddValue > option:nth-child('+str(i)+')'
+			browser.find_by_css(selector).click()
+			print "running loop KANCA UTAMA"
+
+			try:
+				for j in range (2,30):
+					print "running loop UKER BINAAN " + str(j-1)
+					# UKER YANG BERSANGKUTAN
+					selector = '#ReportViewerControl_ctl00_ctl07_ddValue > option:nth-child('+str(j)+')'
+					browser.find_by_css(selector).click()
+
+					# TANGGAL YANG DIINGINKAN
+					selector = '#ReportViewerControl_ctl00_ctl09_ddValue > option:nth-child(2)'
+					browser.find_by_css(selector).click()
+
+					time.sleep(3)
+
+					# TOMBOL VIEW REPORT
+					selector = '#ReportViewerControl_ctl00_ctl00'
+					browser.find_by_css(selector).click()
+
+					# TOMBOL FORMAT LAPORAN
+					selector = '#ReportViewerControl_ctl01_ctl05_ctl00 > option'
+					browser.find_by_css(selector).last.click()
+
+					# TOMBOL EXPORT
+					selector ='#ReportViewerControl_ctl01_ctl05_ctl01'
+					browser.find_by_css(selector).click()
+
+			except:
+				print "error di pemilihan uker binaan"
+				pass
+
+			print "download selesai"
+
+
+	except:
+		browser.driver.close()
+		print "error di kanca utama"
+
+
+# UNDUH SEMUA LAPORAN
+downloadReport(downDir)
+
+# RENAME FILE SETELAH UNDUHAN SELESAI	
+renameAllFilesByCellContent(downDir, 1, 1)
