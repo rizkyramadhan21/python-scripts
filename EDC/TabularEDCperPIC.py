@@ -629,12 +629,12 @@ def putDataXL(offRow, offCol, merchant, brilinks, jenisPersen):
 	styleTitle += 'align: vertical center, horizontal center, wrap on;'
 	styleTitle += 'font: name Tahoma, height 280, bold 1;'
 
-	sheet1.write_merge(offRow, offRow, offCol, offCol+10, jenisPersen + ' EDC PRO PER PIC ' + RegionName , xlwt.easyxf(styleTitle))
+	sheet1.write_merge(offRow, offRow, offCol, offCol+12, jenisPersen + ' EDC PRO PER PIC ' + RegionName , xlwt.easyxf(styleTitle))
 	shiftDown = 1
 
 	sheet1.row(1).height_mismatch = True
 	sheet1.row(1).height = 360
-	sheet1.write_merge(offRow+shiftDown, offRow+shiftDown, offCol, offCol+10, 'posisi tanggal ' +time.strftime("%d/%m/%Y-%H:%M") , xlwt.easyxf(styleTitle))
+	sheet1.write_merge(offRow+shiftDown, offRow+shiftDown, offCol, offCol+12, 'posisi tanggal ' +time.strftime("%d/%m/%Y-%H:%M") , xlwt.easyxf(styleTitle))
 	contentAlignmentHorz = ["center", "right", "center", "center", "left", "center"]
 
 
