@@ -3,7 +3,7 @@
 # fetchStatusATMNonTunai.py
 # (c) Jansen A. Simanullang, 11:15:55
 # 14 Januari 2016 09:04:11
-# 13 Agustus 2016 13:58:28 - 15:30
+# 13 Agustus 2016 13:58:28 - 15:30, 16:33
 # to be used with telegram-bot plugin
 #---------------------------------------
 # usage: fetchStatusATMNonTunai cro/uko/kode cabang
@@ -412,7 +412,7 @@ def getTNonTunaiCabang(TNonTunai, branchCode):
 	TNonTunaiCRO = []
 
 	for i in range(0, len(TNonTunai)):
-		if TNonTunai[i][0] == branchCode:
+		if TNonTunai[i][0] == branchCode.zfill(4):
 			strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
 			TNonTunaiKanca.append(TNonTunai[i])
 
@@ -449,33 +449,49 @@ def getTNonTunaiCRO(TNonTunai, selectedCRO):
 	#Initialize
 	msgBody = ""
 	seqNo = 0
+	counter = 0
 	TNonTunaiCRO = []
 	arrCRO = ["BG", "G4S", "KEJAR", "SSI", "TAG"]
 
 	if selectedCRO == 0:
 
+		selectedCRO = "ALL"
 		strCRO = "[ALL CRO]"
+
+		for i in range(0, len(TNonTunai)):
+			if TNonTunai[i][2] == 1:
+				strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
+				TNonTunaiCRO.append((TNonTunai[i][1], TNonTunai[i][4], TNonTunai[i][5]))
 
 	elif selectedCRO in arrCRO:
 
-		arrCRO = []
+		arrCRO = [""]
 		arrCRO.append(selectedCRO)
 		strCRO = "["+selectedCRO+"]"
 	
-	for i in range(0, len(TNonTunai)):
+		for i in range(0, len(TNonTunai)):
 
-		if TNonTunai[i][2] == 1:
-			strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
-			TNonTunaiCRO.append((TNonTunai[i][1], TNonTunai[i][4], TNonTunai[i][5]))
+			if TNonTunai[i][1] == selectedCRO:
+				strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
+				TNonTunaiCRO.append((TNonTunai[i][1], TNonTunai[i][4], TNonTunai[i][5]))
 
 	if TNonTunaiCRO:
+
 		msgBody += strCRO+"\n"
 		for i in range(0, len(TNonTunaiCRO)):
+
+			if TNonTunaiCRO[i-1][0] != TNonTunaiCRO[i][0]:
+				msgBody += "\n[" + str(TNonTunaiCRO[i][0]) + "]\n"
+				seqNo = 0
+
 			for j in range(0, len(arrCRO)):
 
 				if str(TNonTunaiCRO[i][0]) == arrCRO[j]:
 					seqNo += 1
-					msgBody += str(seqNo)+") "+ str(TNonTunaiCRO[i][0]) +": "+str(TNonTunaiCRO[i][1])+", "+str(TNonTunaiCRO[i][2])+"\n"
+					counter += 1
+					msgBody += str(seqNo)+") "+ str(TNonTunaiCRO[i][1])+", "+str(TNonTunaiCRO[i][2])+"\n"
+
+		msgBody += "\n"+regionName + "-[TOTAL NONTUNAI CRO "+selectedCRO+"]: "+str(counter)
 
 	return 	msgBody
 
@@ -485,6 +501,7 @@ def getTNonTunaiUKO(TNonTunai):
 	#Initialize
 	msgBody = ""
 	seqNo = 0
+	counter = 0
 	TNonTunaiUKO = []
 
 	for i in range(0, len(TNonTunai)):
@@ -499,9 +516,15 @@ def getTNonTunaiUKO(TNonTunai):
 	
 		msgBody += "[UKO]\n"
 		for i in range(0, len(TNonTunaiUKO)):
+			if TNonTunaiUKO[i-1][0] != TNonTunaiUKO[i][0]:
+				msgBody +=  "\n"+str(TNonTunaiUKO[i][0]) + "\n"
+				seqNo = 0
 
 			seqNo += 1
-			msgBody += str(seqNo)+") "+ str(TNonTunaiUKO[i][0]) +": "+str(TNonTunaiUKO[i][1])+", "+str(TNonTunaiUKO[i][2])+"\n"
+			counter += 1
+			msgBody += str(seqNo)+") "+ str(TNonTunaiUKO[i][1])+", "+str(TNonTunaiUKO[i][2])+"\n"
+
+		msgBody += "\n"+regionName + "-[TOTAL NONTUNAI UKO]: "+str(counter)
 
 	return 	msgBody
 
@@ -620,5 +643,3 @@ if len(sys.argv) > 0:
 
 			except:
 				print "CRO tidak dikenal."
-
-
