@@ -2,7 +2,8 @@
 #---------------------------------------
 # fetchStatusATMNonTunai.py
 # (c) Jansen A. Simanullang, 11:15:55
-# 4 Agustus 2016 16:32:33
+# 14 Januari 2016 09:04:11
+# 13 Agustus 2016 13:58:28 - 15:30
 # to be used with telegram-bot plugin
 #---------------------------------------
 # usage: fetchStatusATMNonTunai cro/uko/kode cabang
@@ -12,9 +13,11 @@
 from BeautifulSoup import BeautifulSoup
 import sys, time
 import urllib2
+from operator import itemgetter
 
 atmproIP = "172.18.65.42"
 regionName = "JAKARTA III"
+strHeaderLine = "\n----------------------------------------------\n"
 
 def fetchHTML(alamatURL):
 	# fungsi ini hanya untuk mengambil stream string HTML dari alamat URL yang akan dimonitor
@@ -348,7 +351,11 @@ def getATMStats(table, branchCode):
 	return msgBody
 
 
-def getATMStatsUKO(table):
+
+
+
+
+def getTNonTunai(table):
 
 	soup = BeautifulSoup(str(table))
 	
@@ -360,10 +367,9 @@ def getATMStatsUKO(table):
 
 	numRowsHead = getRowsHeadNumber(table)
 
-	#print numRowsHead, numRows
-	msgBody = ""
+	#Initialize
 
-	seqNo = 0
+	TNonTunai = []
 	
 	for i in range (0, numRows):
 
@@ -372,180 +378,175 @@ def getATMStatsUKO(table):
 		tdcells = trs.findAll("td")
 		thcells = trs.findAll("th")
 
-		#print len(tdcells), len(thcells)
-
-
-
 		if tdcells:
-			
-			if ("ATM CENTER" not in tdcells[5].getText()):
+			strTID = tdcells[1].getText()
+			strLocation = tdcells[4].getText()
+			strLocation = cleanUpLocation(strLocation)
+			strArea = tdcells[5].getText()
 
-				seqNo = seqNo +1
+			if "ATM CENTER" in strArea:
+				intCRO = 1
+				namaCROUKO = cleanUpNamaCRO(strArea)
+			else:
+				intCRO = 0
+				namaCROUKO = cleanupNamaUker(strArea)
+				
+			strCabang = tdcells[6].getText()
+			strKodeCabang = strCabang[:4]
+			strNamaCabang = strCabang[6:]
 
-				msgBody += "\n"+str(seqNo)+") " + tdcells[6].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText() +"\nLOKASI: "+ tdcells[4].getText()+"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI UKO kategori ini di wilayah kerja Anda."
-	return msgBody
+			TNonTunai.append((strKodeCabang, namaCROUKO, intCRO, strArea, strLocation, strTID, strNamaCabang))
+
+	TNonTunai = sorted(TNonTunai, key=itemgetter(1, 3, 2), reverse = False)
+
+	return TNonTunai 
 
 
+def getTNonTunaiCabang(TNonTunai, branchCode):
 
-def getATMStatsCRO(table):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
+	#Initialize
 	msgBody = ""
-
-	seqNo = 0
 	
-	for i in range (0, numRows):
+	TNonTunaiKanca = []
+	TNonTunaiUKO = []
+	TNonTunaiCRO = []
 
-		trs = BeautifulSoup(str(rows[i]))
+	for i in range(0, len(TNonTunai)):
+		if TNonTunai[i][0] == branchCode:
+			strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
+			TNonTunaiKanca.append(TNonTunai[i])
 
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
+	for i in range(0, len(TNonTunaiKanca)):
+		if TNonTunaiKanca[i][2] == 0:
+			TNonTunaiUKO.append((TNonTunaiKanca[i][3], TNonTunaiKanca[i][5]))
 
-		#print len(tdcells), len(thcells)
+	for i in range(0, len(TNonTunaiKanca)):
+		if TNonTunaiKanca[i][2] == 1:
+			TNonTunaiCRO.append((TNonTunaiKanca[i][1], TNonTunaiKanca[i][4], TNonTunaiKanca[i][5]))
+
+	if TNonTunaiUKO or TNonTunaiCRO:
+		msgBody = strHeaderLine +"ATM NON TUNAI "+ strNamaCabang.upper() +timestamp+ strHeaderLine + msgBody + "\n"
+	else:
+
+		msgBody = strHeaderLine +"ATM NON TUNAI "+ branchCode +timestamp+ strHeaderLine + msgBody + "\nEXCELLENT WORK!\nALL ONLINE ATM IS READY TO DISPENSE MONEY!"
+
+	if TNonTunaiUKO:
+		msgBody += "[UKO]\n"
+		for i in range(0, len(TNonTunaiUKO)):
+					msgBody += str(i+1)+" "+ str(TNonTunaiUKO[i][0])+", "+str(TNonTunaiUKO[i][1])+"\n"
+		msgBody += "\n"			
+
+	if TNonTunaiCRO:
+		msgBody += "[CRO]\n"
+		for i in range(0, len(TNonTunaiCRO)):
+					msgBody += str(i+1)+" "+ str(TNonTunaiCRO[i][0]) +": "+str(TNonTunaiCRO[i][1])+", "+str(TNonTunaiCRO[i][2])+"\n"
+
+	return 	msgBody
 
 
+def getTNonTunaiCRO(TNonTunai, selectedCRO):
 
-		if tdcells:
-			
-			if ("ATM CENTER" in tdcells[5].getText()):
-
-				seqNo = seqNo +1
-				msgBody += "\n"+str(seqNo)+") "+"CRO: " + tdcells[5].getText().replace("ATM CENTER (","").replace(")","") +"\nLOKASI: "+ tdcells[4].getText() +"\nUKER: "+tdcells[6].getText().upper() + "\nTID: " +tdcells[1].getText()+", " + tdcells[2].getText()+"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI CRO kategori ini di wilayah kerja Anda."
-	return msgBody
-
-
-
-def getATMStatsPerCRO(table, strCRO):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
+	#Initialize
 	msgBody = ""
-
 	seqNo = 0
+	TNonTunaiCRO = []
+	arrCRO = ["BG", "G4S", "KEJAR", "SSI", "TAG"]
+
+	if selectedCRO == 0:
+
+		strCRO = "[ALL CRO]"
+
+	elif selectedCRO in arrCRO:
+
+		arrCRO = []
+		arrCRO.append(selectedCRO)
+		strCRO = "["+selectedCRO+"]"
 	
-	for i in range (0, numRows):
+	for i in range(0, len(TNonTunai)):
 
-		trs = BeautifulSoup(str(rows[i]))
+		if TNonTunai[i][2] == 1:
+			strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
+			TNonTunaiCRO.append((TNonTunai[i][1], TNonTunai[i][4], TNonTunai[i][5]))
 
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
+	if TNonTunaiCRO:
+		msgBody += strCRO+"\n"
+		for i in range(0, len(TNonTunaiCRO)):
+			for j in range(0, len(arrCRO)):
 
-		#print len(tdcells), len(thcells)
+				if str(TNonTunaiCRO[i][0]) == arrCRO[j]:
+					seqNo += 1
+					msgBody += str(seqNo)+") "+ str(TNonTunaiCRO[i][0]) +": "+str(TNonTunaiCRO[i][1])+", "+str(TNonTunaiCRO[i][2])+"\n"
 
-
-
-		if tdcells:
-			
-			if ("ATM CENTER" in tdcells[5].getText() and strCRO in tdcells[5].getText()):
-
-				seqNo = seqNo +1
-				msgBody += "\n"+str(seqNo)+") "+"CRO: " + tdcells[5].getText().replace("ATM CENTER (","").replace(")","") +"\nLOKASI: "+ tdcells[4].getText() +"\nUKER: "+tdcells[6].getText().upper() + "\nTID: " +tdcells[1].getText()+", " + tdcells[2].getText()+"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI CRO "+strCRO+" kategori ini di wilayah kerja Anda.\nGunakan 'swa' untuk SSI, 'sec' untuk G4S."
-	return msgBody
+	return 	msgBody
 
 
+def getTNonTunaiUKO(TNonTunai):
 
-
-
-def getATMStatsCRObyBranch(table, branchCode):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
+	#Initialize
 	msgBody = ""
-
 	seqNo = 0
+	TNonTunaiUKO = []
+
+	for i in range(0, len(TNonTunai)):
 	
-	for i in range (0, numRows):
+		if TNonTunai[i][2] == 0:
+			strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
+			TNonTunaiUKO.append((strNamaCabang.upper(), TNonTunai[i][4], TNonTunai[i][5]))
 
-		trs = BeautifulSoup(str(rows[i]))
+	TNonTunaiUKO = sorted(TNonTunaiUKO, key=itemgetter(0), reverse = False)
 
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		#print len(tdcells), len(thcells)
-
-
-		if tdcells:
-
-			if "ATM CENTER" in tdcells[5].getText() and (str(branchCode) in tdcells[6].getText()):
-				seqNo = seqNo +1
-				msgBody += "\n"+str(seqNo)+") "+"CRO: " + tdcells[5].getText().replace("ATM CENTER (","").replace(")","") +"\nLOKASI: "+ tdcells[4].getText() +"\nUKER: "+tdcells[6].getText().upper() + "\nTID: " +tdcells[1].getText()+", " + tdcells[2].getText()+"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI CRO kategori ini di wilayah kerja Anda."
-	return msgBody
-
-
-def getATMStatsUKObyBranch(table, branchCode):
-
-	soup = BeautifulSoup(str(table))
+	if TNonTunaiUKO:
 	
-	rows = soup.findAll('tr')
+		msgBody += "[UKO]\n"
+		for i in range(0, len(TNonTunaiUKO)):
 
-	numRows = getRowsNumber(table)
+			seqNo += 1
+			msgBody += str(seqNo)+") "+ str(TNonTunaiUKO[i][0]) +": "+str(TNonTunaiUKO[i][1])+", "+str(TNonTunaiUKO[i][2])+"\n"
 
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
-	msgBody = ""
-
-	seqNo = 0
-
-	
-	for i in range (0, numRows):
-
-		trs = BeautifulSoup(str(rows[i]))
-
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		#print len(tdcells), len(thcells)
+	return 	msgBody
 
 
-		if tdcells:
+def cleanUpNamaCRO(strText):
 
-			if "ATM CENTER" not in tdcells[5].getText() and (str(branchCode) in tdcells[6].getText()):
+	strText = strText.replace("ATM CENTER","")
+	strText = strText.replace("(","")
+	strText = strText.replace(")","")
+	strText = strText.replace("BRINGIN GIGANTARA","BG")
+	strText = strText.replace("BG III","BG")
+	strText = strText.replace("BG II","BG")
+	strText = strText.replace("SWADARMA SARANA","SSI")
+	strText = strText.replace("SECURICOR","G4S")
 
-				seqNo = seqNo +1
+	return strText.strip()
 
-				msgBody += "\n"+str(seqNo)+") " +"LOKASI: "+ tdcells[4].getText() +"\n"+ tdcells[6].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText() +"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI UKO kategori ini di wilayah kerja Anda."
-	return msgBody
+def cleanupNamaUker(namaUker):
+
+
+	namaUker = namaUker.replace("JAKARTA ","")
+	namaUker = namaUker.replace("Jakarta ","")
+	namaUker = namaUker.replace("JKT ","")
+	namaUker = namaUker.replace("KANCA ","")
+	namaUker = namaUker.replace("KC ","")
+
+	return namaUker.strip()
+
+def cleanUpLocation(strLocation):
+
+	strLocation = strLocation.replace("JKT3","")
+	strLocation = strLocation.replace("INDOMARET","IDM")
+	strLocation = strLocation.replace("JAK 3","")
+	strLocation = strLocation.replace("JAKARTA 3","")
+	strLocation = strLocation.replace("JAKARTA3","")
+	strLocation = strLocation.replace("JKT 3","")
+	strLocation = strLocation.replace("PUBL","")
+	strLocation = strLocation.replace("G4S ","")
+	strLocation = strLocation.replace("TAG ","")
+	strLocation = strLocation.replace("SSI ","")
+	strLocation = strLocation.replace("CRO ","")
+	strLocation = strLocation.replace("-","")
+	strLocation = strLocation.strip()
+
+	return strLocation
 
 
 
@@ -567,58 +568,23 @@ if len(sys.argv) > 0:
 			print msgBody
 		
 
-	strHeaderLine = "\n----------------------------------------------\n"
-
 	if AREAID.isdigit():
 
-		branchCode=AREAID
+		TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+		msgBody = getTNonTunaiCabang(TNonTunai, AREAID)
 
-		try:
-			UKOorCRO = sys.argv[2]
-
-			if UKOorCRO.lower() == "cro":
-
-				try:
-
-					msgBody = getATMStatsCRObyBranch(table=getWidestTable(getTableList(fetchHTML(alamatURL))), branchCode = sys.argv[1])				
-					if msgBody:
-
-						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+ branchCode +timestamp+ strHeaderLine + msgBody
-						print "ukocro is cro"
-						print msgBody
-
-				except:
-					msgBody = "Anda belum menyebutkan kode cabang! (Branch code not specified!) \n\nusage:\n!nontunai cro [kode cabang]"
-					print msgBody
-
-			if UKOorCRO.lower() == "uko":
-				try:
-
-					msgBody = getATMStatsUKObyBranch(table=getWidestTable(getTableList(fetchHTML(alamatURL))), branchCode = sys.argv[1])			
-					if msgBody:	
-						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+ branchCode +timestamp+ strHeaderLine + msgBody				
-						print msgBody
-
-				except:
-					msgBody = "Anda belum menyebutkan kode cabang! (Branch code not specified!) \n\nusage:\n!nontunai uko [kode cabang]"
-					print msgBody
-
-		except:
-
-			msgBody = getATMStats(table=getWidestTable(getTableList(fetchHTML(alamatURL))), branchCode=AREAID)
-
-			if msgBody:	
-				msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() +timestamp+ strHeaderLine + msgBody
-				print msgBody
+		if msgBody:	
+			print msgBody
 
 	
-	if AREAID.isalpha():
+	if AREAID[0].isalpha():
 
-		if AREAID.lower() == "uko":
+		if AREAID.upper() == "UKO":
 
 			try:
 
-				msgBody = getATMStatsUKO(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				msgBody = getTNonTunaiUKO(TNonTunai)
 
 				if msgBody:	
 					msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
@@ -627,11 +593,12 @@ if len(sys.argv) > 0:
 			except:
 				print "Ada kesalahan."
 
-		elif AREAID.lower() == "cro":
+		elif AREAID.upper() == "CRO":
 
 			try:
 
-				msgBody = getATMStatsCRO(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				msgBody = getTNonTunaiCRO(TNonTunai, 0)
 
 				if msgBody:	
 					msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
@@ -644,13 +611,14 @@ if len(sys.argv) > 0:
 
 			try:
 
-				msgBody = getATMStatsPerCRO(table=getWidestTable(getTableList(fetchHTML(alamatURL))), strCRO=AREAID.upper())
+				TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				msgBody = getTNonTunaiCRO(TNonTunai, AREAID.upper())
 
 				if msgBody:	
 					msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 					print msgBody
 
 			except:
-				print "CRO tidak dikenal.\nGunakan 'swa' untuk SSI, 'sec' untuk G4S."
+				print "CRO tidak dikenal."
 
 
