@@ -273,87 +273,6 @@ def getRowIndex(table, strSearchKey):
 				#print "we got the index = ", rowIndex, "from ", numRows, "for search key ='"+strSearchKey+"'"
 	return rowIndex
 
-def getATMStatsGeneral(table):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
-	msgBody = ""
-
-	seqNo = 0
-	
-	for i in range (0, numRows):
-
-		trs = BeautifulSoup(str(rows[i]))
-
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		#print len(tdcells), len(thcells)
-
-
-
-		if tdcells:
-			
-			seqNo = seqNo +1
-
-			msgBody += "\n"+str(seqNo)+") " + tdcells[6].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText() +"\nLOKASI: "+ tdcells[4].getText()+"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI UKO kategori ini di wilayah kerja Anda."
-	return msgBody
-
-
-def getATMStats(table, branchCode):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
-	msgBody = ""
-
-	seqNo = 0
-	
-	for i in range (0, numRows):
-
-		trs = BeautifulSoup(str(rows[i]))
-
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		#print len(tdcells), len(thcells)
-
-
-
-		if tdcells:
-			
-			if (str(branchCode) in tdcells[6].getText()):
-
-				seqNo = seqNo +1
-
-				msgBody += "\n"+str(seqNo)+") " + tdcells[6].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText() +"\nLOKASI: "+ tdcells[4].getText()+"\n"
-	if msgBody == "":
-		msgBody = "Tidak ada ATM NON TUNAI UKO kategori ini di wilayah kerja Anda."
-	return msgBody
-
-
-
-
-
 
 def getTNonTunai(table):
 
@@ -584,62 +503,59 @@ if len(sys.argv) > 0:
 	try:
 		AREAID = sys.argv[1]
 
-	except:
-		msgBody = getATMStatsGeneral(table=getWidestTable(getTableList(fetchHTML(alamatURL))), branchCode=AREAID)
-		if msgBody:	
-			msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() +timestamp+ strHeaderLine + msgBody
-			print msgBody
-		
+		if AREAID.isdigit():
 
-	if AREAID.isdigit():
+			TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+			msgBody = getTNonTunaiCabang(TNonTunai, AREAID)
 
-		TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
-		msgBody = getTNonTunaiCabang(TNonTunai, AREAID)
-
-		if msgBody:	
-			print msgBody
+			if msgBody:	
+				print msgBody
 
 	
-	if AREAID[0].isalpha():
+		if AREAID[0].isalpha():
 
-		if AREAID.upper() == "UKO":
+			if AREAID.upper() == "UKO":
 
-			try:
+				try:
 
-				TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
-				msgBody = getTNonTunaiUKO(TNonTunai)
+					TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTNonTunaiUKO(TNonTunai)
 
-				if msgBody:	
-					msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
-					print msgBody
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						print msgBody
 
-			except:
-				print "Ada kesalahan."
+				except:
+					print "Ada kesalahan."
 
-		elif AREAID.upper() == "CRO":
+			elif AREAID.upper() == "CRO":
 
-			try:
+				try:
 
-				TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
-				msgBody = getTNonTunaiCRO(TNonTunai, 0)
+					TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTNonTunaiCRO(TNonTunai, 0)
 
-				if msgBody:	
-					msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
-					print msgBody
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						print msgBody
 
-			except:
-				print "Ada kesalahan."
+				except:
+					print "Ada kesalahan."
 
-		else:
+			else:
 
-			try:
+				try:
 
-				TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
-				msgBody = getTNonTunaiCRO(TNonTunai, AREAID.upper())
+					TNonTunai = getTNonTunai(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTNonTunaiCRO(TNonTunai, AREAID.upper())
 
-				if msgBody:	
-					msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
-					print msgBody
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						print msgBody
 
-			except:
-				print "CRO tidak dikenal."
+				except:
+					print "CRO tidak dikenal."
+
+	except:
+
+		print "ANDA belum meng-input kode UKO/ CRO."
