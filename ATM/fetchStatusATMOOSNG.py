@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #---------------------------------------
-# fetchStatusATMOfflineTrx.py
+# fetchStatusATMOOSNG.py
 # (c) Jansen A. Simanullang, 11:15:55
 # 14 Januari 2016 09:04:11
 # 13 Agustus 2016 13:58:28 - 15:30, 16:33
@@ -8,7 +8,7 @@
 # 20.08.2016 16:04
 # to be used with telegram-bot plugin
 #---------------------------------------
-# usage: fetchStatusATMOffline cro/uko/kode cabang
+# usage: fetchStatusATMOOSNG cro/uko/kode cabang
 # script name followed by cro/uko or branchCode
 #---------------------------------------
 
