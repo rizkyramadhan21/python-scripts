@@ -564,11 +564,11 @@ def colorAvail(percentAvail):
 
 	if percentAvail >= 0.00:
 		strColor = "merah"
-	if percentAvail >= 87.00:
+	if percentAvail > 87.00:
 		strColor = "kuning"
-	if percentAvail >= 93.00:
+	if percentAvail > 93.00:
 		strColor = "hijau_muda"
-	if percentAvail >= 97.00:
+	if percentAvail > 97.00:
 		strColor = "hijau_tua"
 
 
