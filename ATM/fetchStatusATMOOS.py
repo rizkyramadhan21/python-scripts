@@ -347,13 +347,18 @@ def getTOutOSCabang(TOutOS, branchCode):
 		msgBody = msgBody + "\nTidak ada ATM kategori ini di wilayah Anda!"
 
 	if TOutOSUKO:
-		msgBody += "[UKO]\n"
+
+		if len(TOutOSUKO) < 2:
+				msgBody +=  "\n["+str(TOutOSUKO[0][0]) + "]\n"
+
 		for i in range(0, len(TOutOSUKO)):
 					msgBody += str(i+1)+" "+ str(TOutOSUKO[i][0])+", "+str(TOutOSUKO[i][1])+", "+durasiHinggaKini(str(TOutOSUKO[i][2]))+"\n"
 		msgBody += "\n"			
 
 	if TOutOSCRO:
 		msgBody += "[CRO]\n"
+		if len(TOutOSCRO) < 2:
+				msgBody +=  "\n["+str(TOutOSCRO[0][0]) + "]\n"
 		for i in range(0, len(TOutOSCRO)):
 					msgBody += str(i+1)+" "+ str(TOutOSCRO[i][0]) +": "+str(TOutOSCRO[i][1])+", "+str(TOutOSCRO[i][2])+", "+durasiHinggaKini(str(TOutOSCRO[i][3]))+"\n"
 
@@ -397,7 +402,7 @@ def getTOutOSCRO(TOutOS, selectedCRO):
 
 		msgBody += strCRO+"\n"
 
-		if len(TOutOSCRO) <= 2:
+		if len(TOutOSCRO) < 2:
 				msgBody +=  "\n["+str(TOutOSCRO[0][0]) + "]\n"
 
 		for i in range(0, len(TOutOSCRO)):
@@ -438,7 +443,7 @@ def getTOutOSACI(TOutOS, selectedACI):
 	seqNo = 0
 	if TOutOSACI:
 
-		if len(TOutOSACI) == 1:
+		if len(TOutOSACI) < 2:
 			msgBody +=  "\n"+str(TOutOSACI[0][0]) + "\n"
 
 		for i in range(0, len(TOutOSACI)):
@@ -474,6 +479,10 @@ def getTOutOSUKO(TOutOS):
 	if TOutOSUKO:
 	
 		msgBody += "[UKO]\n"
+
+		if len(TOutOSUKO) < 2:
+			msgBody +=  "\n"+str(TOutOSUKO[0][0]) + "\n"
+
 		for i in range(0, len(TOutOSUKO)):
 			if TOutOSUKO[i-1][0] != TOutOSUKO[i][0]:
 				msgBody +=  "\n"+str(TOutOSUKO[i][0]) + "\n"
