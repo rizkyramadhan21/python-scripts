@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #---------------------------------------
-# fetchStatusATMOOSG.py
+# fetchStatusATMOOS.py
 # (c) Jansen A. Simanullang, 11:15:55
 # 14 Januari 2016 09:04:11
 # 13 Agustus 2016 13:58:28 - 15:30, 16:33
@@ -8,7 +8,7 @@
 # 20.08.2016 16:04
 # to be used with telegram-bot plugin
 #---------------------------------------
-# usage: fetchStatusATMOOSG cro/uko/kode cabang
+# usage: fetchStatusATMOOS cro/uko/kode cabang
 # script name followed by cro/uko or branchCode
 #---------------------------------------
 
@@ -341,10 +341,10 @@ def getTOutOSCabang(TOutOS, branchCode):
 			TOutOSCRO.append((TOutOSKanca[i][1], TOutOSKanca[i][4], TID, getLastTunai(TID)))
 
 	if TOutOSUKO or TOutOSCRO:
-		msgBody = strHeaderLine +"ATM OOS G "+ strNamaCabang.upper() +timestamp+ strHeaderLine + msgBody + "\n"
+		msgBody = msgBody + "\n"
 	else:
 
-		msgBody = strHeaderLine +"ATM OOS G "+ branchCode +timestamp+ strHeaderLine + msgBody + "\nTidak ada ATM kategori ini di wilayah Anda!"
+		msgBody = msgBody + "\nTidak ada ATM kategori ini di wilayah Anda!"
 
 	if TOutOSUKO:
 		msgBody += "[UKO]\n"
@@ -418,6 +418,42 @@ def getTOutOSCRO(TOutOS, selectedCRO):
 	return 	msgBody
 
 
+def getTOutOSACI(TOutOS, selectedACI):
+
+	msgBody = ""
+	seqNo = 0
+	counter = 0
+	TOutOSACI = []
+
+	for i in range(0, len(TOutOS)):
+
+		if selectedACI in TOutOS[i][4]:
+			seqNo += 1
+			strNamaCabang = cleanupNamaUker(TOutOS[i][-1])
+			TID = TOutOS[i][5]
+			strLocation = TOutOS[i][4]
+			TOutOSACI.append((strNamaCabang.upper(), strLocation, TID, getLastTunai(TID)))
+
+	TOutOSACI = sorted(TOutOSACI, key=itemgetter(0), reverse = False)
+	seqNo = 0
+	if TOutOSACI:
+
+		if len(TOutOSACI) == 1:
+			msgBody +=  "\n"+str(TOutOSACI[0][0]) + "\n"
+
+		for i in range(0, len(TOutOSACI)):
+			if TOutOSACI[i-1][0] != TOutOSACI[i][0]:
+				msgBody +=  "\n"+str(TOutOSACI[i][0]) + "\n"
+				seqNo = 0
+			seqNo += 1
+			counter += 1
+			msgBody += str(seqNo)+") "+ str(TOutOSACI[i][1])+", "+str(TOutOSACI[i][2])+", "+durasiHinggaKini(str(TOutOSACI[i][3]))+"\n"
+
+		msgBody += "\n"+regionName + "-[TOTAL OOS "+selectedACI.upper()+"]: "+str(counter)
+
+	return 	msgBody
+
+
 def getTOutOSUKO(TOutOS):
 
 	#Initialize
@@ -448,43 +484,6 @@ def getTOutOSUKO(TOutOS):
 			msgBody += str(seqNo)+") "+ str(TOutOSUKO[i][1])+", "+str(TOutOSUKO[i][2])+", "+durasiHinggaKini(str(TOutOSUKO[i][3]))+"\n"
 
 		msgBody += "\n"+regionName + "-[TOTAL OOS UKO]: "+str(counter)
-
-	return 	msgBody
-
-
-def getTOutOSACI(TOutOS, selectedACI):
-
-
-	msgBody = ""
-	seqNo = 0
-	counter = 0
-	TOutOSACI = []
-
-	for i in range(0, len(TOutOS)):
-
-		if selectedACI in TOutOS[i][4]:
-			seqNo += 1
-			strNamaCabang = cleanupNamaUker(TOutOS[i][-1])
-			TID = TOutOS[i][5]
-			strLocation = TOutOS[i][4]
-			TOutOSACI.append((strNamaCabang.upper(), strLocation, TID, getLastTunai(TID)))
-
-	TOutOSACI = sorted(TOutOSACI, key=itemgetter(0), reverse = False)
-	seqNo = 0
-	if TOutOSACI:
-
-		if len(TOutOSACI) <= 2:
-				msgBody +=  "\n"+str(TOutOSACI[0][0]) + "\n"
-	
-		for i in range(0, len(TOutOSACI)):
-			if TOutOSACI[i-1][0] != TOutOSACI[i][0]:
-				msgBody +=  "\n"+str(TOutOSACI[i][0]) + "\n"
-				seqNo = 0
-			seqNo += 1
-			counter += 1
-			msgBody += str(seqNo)+") "+ str(TOutOSACI[i][1])+", "+str(TOutOSACI[i][2])+", "+durasiHinggaKini(str(TOutOSACI[i][3]))+"\n"
-
-		msgBody += "\n"+regionName + "-[TOTAL OOS "+selectedACI.upper()+"]: "+str(counter)
 
 	return 	msgBody
 
@@ -570,17 +569,23 @@ timestamp = "\nper "+ time.strftime("%d-%m-%Y pukul %H:%M")
 
 if len(sys.argv) > 0:
 
-	alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=Y"
-
 	try:
 		AREAID = sys.argv[1]
 
 		if AREAID.isdigit():
-
+		
+			alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=Y"
 			TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
 			msgBody = getTOutOSCabang(TOutOS, AREAID)
-
 			if msgBody:	
+				msgBody = strHeaderLine +"ATM OOS (GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
+				print msgBody
+
+			alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=N"
+			TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+			msgBody = getTOutOSCabang(TOutOS, AREAID)
+			if msgBody:	
+				msgBody = strHeaderLine +"ATM OOS (NON GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
 				print msgBody
 
 	
@@ -589,12 +594,18 @@ if len(sys.argv) > 0:
 			if AREAID.upper() == "UKO":
 
 				try:
-
+					alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=Y"
 					TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
 					msgBody = getTOutOSUKO(TOutOS)
-
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OOS G "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						msgBody = strHeaderLine +"ATM OOS (GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
+						print msgBody
+
+					alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=N"
+					TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOutOSUKO(TOutOS)
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OOS (NON GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
 						print msgBody
 
 				except:
@@ -603,12 +614,18 @@ if len(sys.argv) > 0:
 			elif AREAID.upper() == "CRO":
 
 				try:
-
+					alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=Y"
 					TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
 					msgBody = getTOutOSCRO(TOutOS, 0)
-
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OOS G "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						msgBody = strHeaderLine +"ATM OOS (GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
+						print msgBody
+
+					alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=N"
+					TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOutOSCRO(TOutOS, 0)
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OOS (NON GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
 						print msgBody
 
 				except:
@@ -618,11 +635,18 @@ if len(sys.argv) > 0:
 
 				try:
 
+					alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=Y"
 					TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
 					msgBody = getTOutOSACI(TOutOS, AREAID.upper())
-
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OOS G "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						msgBody = strHeaderLine +"ATM OOS (GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
+						print msgBody
+
+					alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyregionprobooscr.pl?REGID=15&ERROR=CLOSE_ST&gr=N"
+					TOutOS = getTOutOS(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOutOSACI(TOutOS, AREAID.upper())
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OOS (NON GARANSI)  "+ AREAID.upper() +timestamp+strHeaderLine+ msgBody
 						print msgBody
 
 				except:
