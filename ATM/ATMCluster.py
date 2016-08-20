@@ -2,8 +2,7 @@
 #---------------------------------------
 # ATMCluster.py
 # (c) Jansen A. Simanullang, 01.08.2016
-# 18.08.2016
-# 19.08.2016
+# 18/19/20.08.2016
 #---------------------------------------
 # usage: python ATMCluster.py
 #---------------------------------------
@@ -64,46 +63,48 @@ def readClusterMaps(branchCode):
 def readClusterName(CNumber):
 
 	fName = clusterNamesFile
-
 	arrPICs = [""]
-	PICName = 0
+	CName = 0
 
 	f = open(fName)
-
 	for baris in f.readlines():
-
 		col = baris.strip().split(",")
-
 		if col[0] == CNumber:		
-
-			PICName = col[1]
-		
-				
+			CName = col[1]		
 	f.close()
 
-	return PICName
+	return CName
 
 
 def readClusterNames():
 
 	fName = clusterNamesFile
-
 	arrClusterNames = []
 	clusterName = ""
 
 	f = open(fName)
-
 	for baris in f.readlines():
-
 		col = baris.strip().split(",")
-
 		clusterName = col[1]
-
-		arrClusterNames.append(clusterName)
-				
+		arrClusterNames.append(clusterName)		
 	f.close()
 
 	return arrClusterNames
+
+def readClusterNumbers():
+
+	fName = clusterNamesFile
+	arrCNumber = []
+	cNumber = 0
+
+	f = open(fName)
+	for baris in f.readlines():
+		col = baris.strip().split(",")
+		cNumber = col[0]
+		arrCNumber.append(cNumber)		
+	f.close()
+
+	return arrCNumber
 
 
 def fetchHTML(alamatURL):
@@ -333,26 +334,22 @@ def getTableContents(table):
 	for i in range (2, numRows-1):
 
 		trs = BeautifulSoup(str(rows[i]))
-	
 		tdcells = trs.findAll("td")
 		#print len(tdcells)
 		kodeCabang = tdcells[1].getText()
-
-		PICName = readClusterName(readClusterMaps(kodeCabang))
-
+		CNumber = readClusterMaps(kodeCabang)
 		dText = tdcells[2].getText()
-
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
 		textNOPG = tdcells[4].getText()
-		if (textNOPG) != '':
+		if textNOPG:
 			NOPG = int(tdcells[4].getText()) 
 		else:			
 			NOPG = 0
 			#print "NOPG NIHIL"
 		#---------------------------------------
 		textNOPNG = tdcells[5].getText()
-		if (textNOPG) != '':
+		if textNOPNG:
 			NOPNG = int(tdcells[5].getText()) 
 		else:
 			NOPNG = 0
@@ -361,14 +358,14 @@ def getTableContents(table):
 		NOP = NOPG + NOPNG
 		#---------------------------------------
 		textRSKG = tdcells[6].getText()
-		if (textRSKG) != '':
+		if textRSKG:
 			RSKG = int(tdcells[6].getText()) 
 		else:			
 			RSKG = 0
 			#print "RSKG NIHIL"
 		#---------------------------------------
 		textRSKNG = tdcells[7].getText()
-		if (textRSKNG) != '':
+		if textRSKNG:
 			RSKNG = int(tdcells[7].getText()) 
 		else:			
 			RSKNG = 0
@@ -377,33 +374,30 @@ def getTableContents(table):
 		RSK = RSKG + RSKNG
 		#---------------------------------------
 		textPROBOPS = tdcells[8].getText()
-		if (textPROBOPS) != '':
+		if textPROBOPS:
 			PROBOPS = int(tdcells[8].getText()) 
 		else:			
 			PROBOPS = 0
 			#print "PROBOPS NIHIL"
 		#---------------------------------------
 		textOOS= tdcells[12].getText()
-		if (textOOS) != '':
+		if textOOS:
 			OOS = int(tdcells[12].getText()) 
 		else:			
 			OOS = 0
 			#print "OOS NIHIL"
 		#---------------------------------------
 		textOFF = tdcells[13].getText()
-		if (textOFF) != '':
+		if textOFF:
 			OFF = int(tdcells[13].getText()) 
 		else:			
 			OFF = 0
 			#print "OFF NIHIL"
 		#---------------------------------------
-
 		PROB = NOP + RSK + PROBOPS + OOS + OFF
 
 		#print kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, PROB
-
-		TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, PROB, PICName))
-
+		TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, PROB, CNumber))
 		TProblem = sorted(TProblem, key=itemgetter(8, 7, 1), reverse = False)
 
 
@@ -412,17 +406,11 @@ def getTableContents(table):
 	TUtility = []
 
 	for i in range (2, numRows-1):
-
 		trs = BeautifulSoup(str(rows[i]))
-	
 		tdcells = trs.findAll("td")
-
 		kodeCabang = tdcells[1].getText()
-
-		PICName = readClusterName(readClusterMaps(kodeCabang))
-
+		CNumber = readClusterMaps(kodeCabang)
 		dText = tdcells[2].getText()
-
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
 		textUP = tdcells[9].getText()
@@ -446,7 +434,7 @@ def getTableContents(table):
 		PERCENT = float(TUNAI/float(UP)*100)
 		#print "{0:.0f}".format(PERCENT), NONTUNAI, ATM 
 
-		TUtility.append((kodeCabang, namaCabang, UP, TUNAI, NONTUNAI, float("{0:.2}".format(PERCENT)),PICName))
+		TUtility.append((kodeCabang, namaCabang, UP, TUNAI, NONTUNAI, float("{0:.2}".format(PERCENT)),CNumber))
 		TUtility = sorted(TUtility, key=itemgetter(6, 5, 1), reverse = False)
 
 
@@ -456,16 +444,11 @@ def getTableContents(table):
 
 	for i in range (2, numRows-1):
 
-		trs = BeautifulSoup(str(rows[i]))
-	
+		trs = BeautifulSoup(str(rows[i]))	
 		tdcells = trs.findAll("td")
-
 		kodeCabang = tdcells[1].getText()
-
-		PICName = readClusterName(readClusterMaps(kodeCabang))
-
+		CNumber = readClusterMaps(kodeCabang)
 		dText = tdcells[2].getText()
-
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
 		textATM = tdcells[3].getText()
@@ -480,11 +463,9 @@ def getTableContents(table):
 		else:			
 			AVAIL = 0
 		#---------------------------------------
-
-
 		#print kodeCabang, namaCabang, AVAIL
 
-		TAvailability.append((kodeCabang, namaCabang, ATM, AVAIL, PICName))
+		TAvailability.append((kodeCabang, namaCabang, ATM, AVAIL, CNumber))
 		TAvailability = sorted(TAvailability, key=itemgetter(4, 3, 2, 1), reverse = False)
 
 		#print TAvailability
@@ -651,6 +632,9 @@ def prepareDirectory(strOutputDir):
 
 def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
+	clusterNames = readClusterNames()
+	cNumbers = readClusterNumbers()
+
 	book = xlwt.Workbook()
 
 	# add new colour to palette and set RGB colour value
@@ -715,7 +699,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 	sheet1.col(offCol+5).width = 4*315
 	sheet1.col(offCol+6).width = 4*315
 	sheet1.col(offCol+7).width = 4*315
-	sheet1.col(offCol+8).width = 8*315
+	sheet1.col(offCol+8).width = 6*315
 
 	shiftDownSeparator = 0
 	headRow = []
@@ -756,15 +740,13 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	# PROBLEM ----------------------------------------------------
 	for k in range (0, len(headRow)-1):
-
+		sheet1.write(headRow[k]-2, c+1, clusterNames[k].upper(), xlwt.easyxf(separatorStyle))		
 		sheet1.write(headRow[k]-2, c+2, Formula("SUM(C"+str(headRow[k])+":C"+str(headRow[k+1]-2)+")"), sepStyle)
 		sheet1.write(headRow[k]-2, c+3, Formula("SUM(D"+str(headRow[k])+":D"+str(headRow[k+1]-2)+")"), sepStyle)
 		sheet1.write(headRow[k]-2, c+4, Formula("SUM(E"+str(headRow[k])+":E"+str(headRow[k+1]-2)+")"), sepStyle)
 		sheet1.write(headRow[k]-2, c+5, Formula("SUM(F"+str(headRow[k])+":F"+str(headRow[k+1]-2)+")"), sepStyle)
 		sheet1.write(headRow[k]-2, c+6, Formula("SUM(G"+str(headRow[k])+":G"+str(headRow[k+1]-2)+")"), sepStyle)
 		sheet1.write(headRow[k]-2, c+7, Formula("SUM(H"+str(headRow[k])+":H"+str(headRow[k+1]-2)+")"), sepStyle)
-
-
 
 
 	shiftLeft = 9
@@ -792,6 +774,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	shiftDownSeparator = 0
 	headRow = []
+
 
 	for k in range (0, len(TUtility)):
 
@@ -829,14 +812,13 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	# MATHEMATICAL CALCULATION ----------------------------------------------------
 
-	clusterNames = readClusterNames()
 	print "clusterNames", clusterNames
 	REGUP, REGTUNAI, REGUTIL = 0, 0, 0
-	for j in range(0, len(clusterNames)):
+	for j in range(0, len(cNumbers)):
 		UP, TUNAI, NONTUNAI, PERCENT = 0, 0, 0, 0
 		for i in range(0,len(TUtility)):		
-			clusterName = TUtility[i][-1].upper()
-			if clusterName == clusterNames[j].upper():
+			CNumber = TUtility[i][-1].upper()
+			if CNumber == cNumbers[j]:
 				UP += TUtility[i][2]
 				TUNAI += TUtility[i][3]
 				NONTUNAI += TUtility[i][4]
@@ -848,6 +830,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 			PERCENT = 0.0
 		print clusterNames[j].upper(), UP, TUNAI, NONTUNAI, "{0:.4}".format(PERCENT)
 
+		sheet1.write(headRow[j]-2, shiftLeft+1, clusterNames[j].upper(), xlwt.easyxf(separatorStyle))		
 		sheet1.write(headRow[j]-2, shiftLeft+2, UP, xlwt.easyxf(separatorStyle))
 		sheet1.write(headRow[j]-2, shiftLeft+3, TUNAI, xlwt.easyxf(separatorStyle))
 		sheet1.write(headRow[j]-2, shiftLeft+4, NONTUNAI, xlwt.easyxf(separatorStyle))
@@ -935,9 +918,9 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 	REGATM, REGATMAVAIL, REGAVAIL = 0, 0, 0
 	for j in range(0, len(clusterNames)):
 		ATM, ATMAVAIL, PERCENT = 0, 0, 0
-		for i in range(0,len(TAvailability)):		
-			clusterName = TAvailability[i][-1].upper()
-			if clusterName == clusterNames[j].upper():
+		for i in range(0,len(TAvailability)):
+			CNumber = TAvailability[i][-1].upper()
+			if CNumber == cNumbers[j]:		
 				ATM += TAvailability[i][2]
 				ATMAVAIL += TAvailability[i][2]*TAvailability[i][3]
 		REGATM += ATM
@@ -948,9 +931,10 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 		except:
 			PERCENT = 0.0
 		print clusterNames[j].upper(), ATM, "{0:.4}".format(PERCENT)
-		#TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, PROB, PICName))
-		#TUtility.append((kodeCabang, namaCabang, UP, TUNAI, NONTUNAI, float("{0:.2}".format(PERCENT)),PICName))
-		#TAvailability.append((kodeCabang, namaCabang, ATM, AVAIL, PICName))
+		#TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, PROB, CName))
+		#TUtility.append((kodeCabang, namaCabang, UP, TUNAI, NONTUNAI, float("{0:.2}".format(PERCENT)),CName))
+		#TAvailability.append((kodeCabang, namaCabang, ATM, AVAIL, CName))
+		sheet1.write(headRow[j]-2, shiftLeft+1, clusterNames[j].upper(), xlwt.easyxf(separatorStyle))		
 		sheet1.write(headRow[j]-2, shiftLeft+2, ATM, sepStyle)
 		sheet1.write(headRow[j]-2, shiftLeft+3, PERCENT, xlwt.easyxf(separatorStyle.replace('white',colorUtility(PERCENT)),num_format_str= '0.00'))
 
