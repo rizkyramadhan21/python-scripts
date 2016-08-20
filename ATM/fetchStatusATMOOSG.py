@@ -396,6 +396,10 @@ def getTOutOSCRO(TOutOS, selectedCRO):
 	if TOutOSCRO:
 
 		msgBody += strCRO+"\n"
+
+		if len(TOutOSCRO) <= 2:
+				msgBody +=  "\n["+str(TOutOSCRO[0][0]) + "]\n"
+
 		for i in range(0, len(TOutOSCRO)):
 
 			if TOutOSCRO[i-1][0] != TOutOSCRO[i][0]:
@@ -469,7 +473,7 @@ def getTOutOSACI(TOutOS, selectedACI):
 	seqNo = 0
 	if TOutOSACI:
 
-		if len(TOutOSACI) == 1:
+		if len(TOutOSACI) <= 2:
 				msgBody +=  "\n"+str(TOutOSACI[0][0]) + "\n"
 	
 		for i in range(0, len(TOutOSACI)):
