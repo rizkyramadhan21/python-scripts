@@ -597,7 +597,7 @@ if len(sys.argv) > 0:
 					msgBody = getTOfflineUKO(TOffline)
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + msgBody
+						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
@@ -605,7 +605,7 @@ if len(sys.argv) > 0:
 					msgBody = getTOfflineUKO(TOffline)
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + msgBody
+						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 				except:
@@ -619,7 +619,7 @@ if len(sys.argv) > 0:
 					msgBody = getTOfflineCRO(TOffline, 0)
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + msgBody
+						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
@@ -627,7 +627,7 @@ if len(sys.argv) > 0:
 					msgBody = getTOfflineCRO(TOffline, 0)
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + msgBody
+						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 				except:
