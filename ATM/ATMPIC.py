@@ -1,10 +1,11 @@
 #!/usr/bin/python
 #---------------------------------------
-# ATMCluster.py
+# ATMPIC.py
 # (c) Jansen A. Simanullang, 01.08.2016
 # 18/19/20.08.2016
+# 20.08.2016 16:04
 #---------------------------------------
-# usage: python ATMCluster.py
+# usage: python ATMPIC.py
 #---------------------------------------
 from BeautifulSoup import BeautifulSoup
 import os, requests, time, urlparse, sys
