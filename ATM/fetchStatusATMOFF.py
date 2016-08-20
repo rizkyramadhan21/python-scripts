@@ -1,20 +1,24 @@
 #!/usr/bin/python
 #---------------------------------------
-# fetchStatusATMOFF.py
+# fetchStatusATMOfflineTrx.py
 # (c) Jansen A. Simanullang, 11:15:55
-# 11.02.2016 19:27
-# 27.07.2016 18:40
+# 14 Januari 2016 09:04:11
+# 13 Agustus 2016 13:58:28 - 15:30, 16:33
+# 15 Agustus 2016 20:46 detail durasi hingga kini
 # to be used with telegram-bot plugin
 #---------------------------------------
-# usage:
-# fetchStatusATMOFF [TID/cro/uko/idm/alfa]
+# usage: fetchStatusATMOffline cro/uko/kode cabang
+# script name followed by cro/uko or branchCode
 #---------------------------------------
 
 from BeautifulSoup import BeautifulSoup
 import sys, time
 import urllib2
+from operator import itemgetter
 
 atmproIP = "172.18.65.42"
+regionName = "JAKARTA III"
+strHeaderLine = "\n----------------------------------------------\n"
 
 def fetchHTML(alamatURL):
 	# fungsi ini hanya untuk mengambil stream string HTML dari alamat URL yang akan dimonitor
@@ -271,304 +275,383 @@ def getRowIndex(table, strSearchKey):
 	return rowIndex
 
 
-def getATMStats(AREAID, table):
+def getTOffline(table):
 
 	soup = BeautifulSoup(str(table))
-	
 	rows = soup.findAll('tr')
-
 	numRows = getRowsNumber(table)
-
 	numCols = getColsNumber(table)
-
 	numRowsHead = getRowsHeadNumber(table)
 
-	#print numRowsHead, numRows
-	msgBody = ""
-
-	seqNo = 0
-
-	for i in range (0, numRows):
-
-		trs = BeautifulSoup(str(rows[i]))
-
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		if tdcells:
-
-			if str(AREAID) in tdcells[6].getText():
-
-				seqNo = seqNo +1
-
-				msgBody += "\n"+str(seqNo)+") "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\n\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[8].getText().replace("days", "hari ").replace("hours","jam") +"\nKETERANGAN:\n"+ tdcells[10].getText() +"\n"
-
-	if msgBody == "":
-		msgBody = "Tidak ada ATM OFF kategori ini di wilayah kerja Anda."
-
-	return msgBody
-
-
-def getATMStatsCRO(table):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
-	msgBody = ""
-
-	seqNo = 0
+	#Initialize
+	TOffline = []
 	
 	for i in range (0, numRows):
 
 		trs = BeautifulSoup(str(rows[i]))
-
 		tdcells = trs.findAll("td")
 		thcells = trs.findAll("th")
 
-		#print len(tdcells), len(thcells)
-
-
-
 		if tdcells:
+			strTID = tdcells[1].getText()
+			strLocation = tdcells[5].getText()
+			strLocation = cleanUpLocation(strLocation)
+			strArea = tdcells[7].getText()
 
-			if "ATM CENTER" in tdcells[7].getText():
+			if "ATM CENTER" in strArea:
+				intCRO = 1
+				namaCROUKO = cleanUpNamaCRO(strArea)
+			else:
+				intCRO = 0
+				namaCROUKO = cleanupNamaUker(strArea)
+				
+			strCabang = tdcells[6].getText()
+			strKodeCabang = strCabang[:4]
+			strNamaCabang = strCabang[6:]
+			TOffline.append((strKodeCabang, namaCROUKO, intCRO, strArea, strLocation, strTID, strNamaCabang))
 
-				seqNo = seqNo +1
+	TOffline = sorted(TOffline, key=itemgetter(1, 3, 2), reverse = False)
 
-				msgBody += "\n"+str(seqNo)+") "+ tdcells[7].getText().replace("ATM CENTER ","").replace("(","").replace(")","") + "\n\nTID: "+ tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\nLOKASI: "+ tdcells[5].getText().title() +"\nDURASI: "+ tdcells[8].getText().replace("Hari", "Hari ").replace("days", "hari ").replace("hours","jam") +"\n"
-
-				if tdcells[10].getText():
-
-					msgBody += "KETERANGAN:\n"+ tdcells[10].getText() + "\n"
-
-	if msgBody == "":
-		msgBody = "Tidak ada ATM OFF di wilayah kerja Anda."
-
-	return msgBody
+	return TOffline 
 
 
-def getATMStatsUKO(table):
+def getTOfflineCabang(TOffline, branchCode):
 
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
+	#Initialize
 	msgBody = ""
+	
+	TOfflineKanca = []
+	TOfflineUKO = []
+	TOfflineCRO = []
 
+	for i in range(0, len(TOffline)):
+		if TOffline[i][0] == branchCode.zfill(4):
+			strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+			TOfflineKanca.append(TOffline[i])
+
+	for i in range(0, len(TOfflineKanca)):
+		if TOfflineKanca[i][2] == 0:
+			TID = TOfflineKanca[i][5]
+			TOfflineUKO.append((TOfflineKanca[i][3], TID, getLastTunai(TID)))
+
+	for i in range(0, len(TOfflineKanca)):
+		if TOfflineKanca[i][2] == 1:
+			TID = TOfflineKanca[i][5]
+			TOfflineCRO.append((TOfflineKanca[i][1], TOfflineKanca[i][4], TID, getLastTunai(TID)))
+
+	if TOfflineUKO or TOfflineCRO:
+		msgBody = strHeaderLine +"ATM OFFLINE "+ strNamaCabang.upper() +timestamp+ strHeaderLine + msgBody + "\n"
+	else:
+
+		msgBody = strHeaderLine +"ATM OFFLINE "+ branchCode +timestamp+ strHeaderLine + msgBody + "\nTidak ada ATM kategori ini di wilayah Anda!"
+
+	if TOfflineUKO:
+		msgBody += "[UKO]\n"
+		for i in range(0, len(TOfflineUKO)):
+					msgBody += str(i+1)+" "+ str(TOfflineUKO[i][0])+", "+str(TOfflineUKO[i][1])+", "+durasiHinggaKini(str(TOfflineUKO[i][2]))+"\n"
+		msgBody += "\n"			
+
+	if TOfflineCRO:
+		msgBody += "[CRO]\n"
+		for i in range(0, len(TOfflineCRO)):
+					msgBody += str(i+1)+" "+ str(TOfflineCRO[i][0]) +": "+str(TOfflineCRO[i][1])+", "+str(TOfflineCRO[i][2])+", "+durasiHinggaKini(str(TOfflineCRO[i][3]))+"\n"
+
+	return 	msgBody
+
+
+def getTOfflineCRO(TOffline, selectedCRO):
+
+	#Initialize
+	msgBody = ""
 	seqNo = 0
+	counter = 0
+	TOfflineCRO = []
+	arrCRO = ["BG", "G4S", "KEJAR", "SSI", "TAG"]
 
-	for i in range (0, numRows):
+	if selectedCRO == 0:
 
-		trs = BeautifulSoup(str(rows[i]))
+		selectedCRO = "ALL"
+		strCRO = "[ALL CRO]"
 
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
+		for i in range(0, len(TOffline)):
+			if TOffline[i][2] == 1:
+				strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+				TID = TOffline[i][5]
+				TOfflineCRO.append((TOffline[i][1], TOffline[i][4], TID, getLastTunai(TID)))
 
-		#print len(tdcells), len(thcells)
+	elif selectedCRO in arrCRO:
+
+		arrCRO = [""]
+		arrCRO.append(selectedCRO)
+		strCRO = "["+selectedCRO+"]"
+	
+		for i in range(0, len(TOffline)):
+
+			if TOffline[i][1] == selectedCRO:
+				strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+				TID = TOffline[i][1]
+				TOfflineCRO.append((TOffline[i][1], TOffline[i][4], TID, getLastTunai(TID)))
+
+	if TOfflineCRO:
+
+		msgBody += strCRO+"\n"
+		for i in range(0, len(TOfflineCRO)):
+
+			if TOfflineCRO[i-1][0] != TOfflineCRO[i][0]:
+				msgBody += "\n[" + str(TOfflineCRO[i][0]) + "]\n"
+				seqNo = 0
+
+			for j in range(0, len(arrCRO)):
+
+				if str(TOfflineCRO[i][0]) == arrCRO[j]:
+					seqNo += 1
+					counter += 1
+					msgBody += str(seqNo)+") "+ str(TOfflineCRO[i][1])+", "+str(TOfflineCRO[i][2])+", "+durasiHinggaKini(str(TOfflineCRO[i][3]))+"\n"
+
+		msgBody += "\n"+regionName + "-[TOTAL OFFLINE CRO "+selectedCRO+"]: "+str(counter)
+
+	return 	msgBody
 
 
+def getTOfflineUKO(TOffline):
 
-		if tdcells:
+	#Initialize
+	msgBody = ""
+	seqNo = 0
+	counter = 0
+	TOfflineUKO = []
 
-			if "ATM CENTER" not in tdcells[7].getText():
+	for i in range(0, len(TOffline)):
+	
+		if TOffline[i][2] == 0:
+			strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+			TID = TOffline[i][5]
+			TOfflineUKO.append((strNamaCabang.upper(), TOffline[i][4], TID, getLastTunai(TID)))
 
-				seqNo = seqNo +1
+	TOfflineUKO = sorted(TOfflineUKO, key=itemgetter(0), reverse = False)
 
-				msgBody += "\n"+str(seqNo)+") "+ tdcells[7].getText().upper() + "\nTID: " + tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ").title() +"\nLOKASI: "+ tdcells[5].getText() +"\nDURASI: "+ tdcells[8].getText().replace("Hari", "hari ").replace("hours","jam") +"\n"
+	if TOfflineUKO:
+	
+		msgBody += "[UKO]\n"
+		for i in range(0, len(TOfflineUKO)):
+			if TOfflineUKO[i-1][0] != TOfflineUKO[i][0]:
+				msgBody +=  "\n"+str(TOfflineUKO[i][0]) + "\n"
+				seqNo = 0
 
-				if tdcells[10].getText():
+			seqNo += 1
+			counter += 1
+			msgBody += str(seqNo)+") "+ str(TOfflineUKO[i][1])+", "+str(TOfflineUKO[i][2])+", "+durasiHinggaKini(str(TOfflineUKO[i][3]))+"\n"
 
-					msgBody += "KETERANGAN:\n"+ tdcells[10].getText() + "\n"
+		msgBody += "\n"+regionName + "-[TOTAL OFFLINE UKO]: "+str(counter)
 
-	if msgBody == "":
-		msgBody = "Tidak ada ATM OFF di wilayah kerja Anda."
+	return 	msgBody
 
-	return msgBody
+def getTOfflineACI(TOffline, selectedACI):
+
+	msgBody = ""
+	seqNo = 0
+	counter = 0
+	TOfflineACI = []
+
+	for i in range(0, len(TOffline)):
+
+		if selectedACI in TOffline[i][4]:
+			seqNo += 1
+			strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+			TID = TOffline[i][5]
+			strLocation = TOffline[i][4]
+			TOfflineACI.append((strNamaCabang.upper(), strLocation, TID, getLastTunai(TID)))
+
+	TOfflineACI = sorted(TOfflineACI, key=itemgetter(0), reverse = False)
+
+	if TOfflineACI:
+	
+		if len(TOfflineACI) == 1:
+			msgBody +=  "\n"+str(TOfflineACI[0][0]) + "\n"
+
+		for i in range(0, len(TOfflineACI)):
+			if TOfflineACI[i-1][0] != TOfflineACI[i][0]:
+				msgBody +=  "\n"+str(TOfflineACI[i][0]) + "\n"
+				seqNo = 0
+			seqNo += 1
+			counter += 1
+			msgBody += str(seqNo)+") "+ str(TOfflineACI[i][1])+", "+str(TOfflineACI[i][2])+", "+durasiHinggaKini(str(TOfflineACI[i][3]))+"\n"
+
+		msgBody += "\n"+regionName + "-[TOTAL OFFLINE "+selectedACI.upper()+"]: "+str(counter)
+
+	return 	msgBody
 
 
+def cleanUpNamaCRO(strText):
 
+	strText = strText.replace("ATM CENTER","")
+	strText = strText.replace("(","")
+	strText = strText.replace(")","")
+	strText = strText.replace("BRINGIN GIGANTARA","BG")
+	strText = strText.replace("BG III","BG")
+	strText = strText.replace("BG II","BG")
+	strText = strText.replace("SWADARMA SARANA","SSI")
+	strText = strText.replace("SECURICOR","G4S")
+
+	return strText.strip()
+
+def cleanupNamaUker(namaUker):
+
+
+	namaUker = namaUker.replace("JAKARTA","")
+	namaUker = namaUker.replace("Jakarta ","") 
+	namaUker = namaUker.replace("JKT ","")
+	namaUker = namaUker.replace("KANCA ","")
+	namaUker = namaUker.replace("KC ","")
+
+	return namaUker.strip()
 
 def cleanUpLocation(strLocation):
 
 	strLocation = strLocation.replace("JKT3","")
 	strLocation = strLocation.replace("INDOMARET","IDM")
+	strLocation = strLocation.replace("JAK 3","")
 	strLocation = strLocation.replace("JAKARTA 3","")
+	strLocation = strLocation.replace("JAKARTA 1","")
+	strLocation = strLocation.replace("JAKARTA3","")
+	strLocation = strLocation.replace("KANWIL 3","")
+	strLocation = strLocation.replace("JAKARTA","")
 	strLocation = strLocation.replace("JKT 3","")
+	strLocation = strLocation.replace("JKT","")
 	strLocation = strLocation.replace("PUBL","")
+	strLocation = strLocation.replace("G4S ","")
+	strLocation = strLocation.replace("TAG ","")
+	strLocation = strLocation.replace("SSI ","")
+	strLocation = strLocation.replace("CRO ","")
+	strLocation = strLocation.replace("-","")
 	strLocation = strLocation.strip()
 
 	return strLocation
 
+def getLastTunai(TID):
 
-def getATMStatsIDM(table):
-
-	soup = BeautifulSoup(str(table))
-	
-	rows = soup.findAll('tr')
-
-	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
-	msgBody = ""
-
-	seqNo = 0
-
-	for i in range (0, numRows):
-
-		trs = BeautifulSoup(str(rows[i]))
-
-		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		#print len(tdcells), len(thcells)
-
-
-		if tdcells:
-
-			if "INDOMARET" in tdcells[5].getText() or "IDM" in tdcells[5].getText() :
-
-				seqNo = seqNo +1
-
-				strLocation = cleanUpLocation(tdcells[5].getText())
-
-				msgBody += "\n"+str(seqNo)+") " + "TOKO: "+ strLocation+"\n\nBRI: " + tdcells[6].getText() +"\nTID:" +tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\nDURASI: "+ tdcells[8].getText().replace("days", "hari ").replace("hours","jam") + "\n"
-
-				if tdcells[9].getText():
-
-					msgBody += "KETERANGAN: "+ tdcells[9].getText().lower() + "\n"
-
-	if msgBody == "":
-		msgBody = "Tidak ada ATM OFFLINE INDOMARET kategori ini di wilayah kerja Anda."
-
-	return msgBody
-
-
-
-def getATMStatsALFA(table):
+	alamatURL = "http://172.18.65.42/statusatm/viewatmdetail.pl?ATM_NUM="+ TID
+	table = getLargestTable(getTableList(fetchHTML(alamatURL)))
 
 	soup = BeautifulSoup(str(table))
-	
 	rows = soup.findAll('tr')
-
 	numRows = getRowsNumber(table)
-
-	numCols = getColsNumber(table)
-
-	numRowsHead = getRowsHeadNumber(table)
-
-	#print numRowsHead, numRows
 	msgBody = ""
-
-	seqNo = 0
-
+	
 	for i in range (0, numRows):
-
 		trs = BeautifulSoup(str(rows[i]))
-
 		tdcells = trs.findAll("td")
-		thcells = trs.findAll("th")
-
-		#print len(tdcells), len(thcells)
-
 		if tdcells:
+			if "TUNAI" in tdcells[0].getText().upper() :
+					msgBody += tdcells[0].getText().upper()+": "+ tdcells[1].getText() +"\n"
 
-			if "ALFA" in tdcells[5].getText():
+	return msgBody.replace("SUKSES TRX. TUNAI:","").strip()
 
-				strLocation = cleanUpLocation(tdcells[5].getText())
 
-				seqNo = seqNo +1
+def durasiHinggaKini(strDate):
 
-				msgBody += "\n"+str(seqNo)+") " + "TOKO: "+ strLocation+"\n\nBRI: " + tdcells[6].getText() +"\nTID:" +tdcells[1].getText()+", " + tdcells[2].getText().replace("HYOSUNG","HYOSUNG ") +"\nDURASI: "+ tdcells[8].getText().replace("days", "hari ").replace("hours","jam") + "\n"
-
-				if tdcells[9].getText():
-
-					msgBody += "KETERANGAN:\n"+ tdcells[9].getText().lower() + "\n"
-
-	if msgBody == "":
-		msgBody = "Tidak ada ATM OFFLINE ALFA kategori ini di wilayah kerja Anda."
-
-	return msgBody
+	from datetime import datetime
+	format1 = '%d/%m/%Y %H:%M'
+	span = datetime.now() - datetime.strptime(strDate.replace('_',' '), format1)
+	return ':'.join(str(span).split('.')[:1]).replace('days','hari')
 
 
 
+msgBody =""
 
 timestamp = "\nper "+ time.strftime("%d-%m-%Y pukul %H:%M")
 
 if len(sys.argv) > 0:
 
-	AREAID = sys.argv[1]
+	alamatURL = "http://172.18.65.42/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
 
-	msgBody =""
-	msgBody2 =""
+	try:
+		AREAID = sys.argv[1]
 
-	strHeaderLine = "\n----------------------------------------\n"
+		if AREAID.isdigit():
 
+			alamatURL = "http://172.18.65.42/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
+			TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+			msgBody = getTOfflineCabang(TOffline, AREAID)
+			if msgBody:	
+				msgBody = strHeaderLine +"ATM OFF (< 6 JAM) "+ AREAID.upper() + msgBody
+				print msgBody
 
-def createMessage(AREAID, alamatURL):
+			alamatURL = "http://172.18.65.42/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
+			TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+			msgBody = getTOfflineCabang(TOffline, AREAID)
+			if msgBody:
+				msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + msgBody
+				print msgBody
 
-	if AREAID.isdigit():
+	
+		if AREAID[0].isalpha():
 
-		msgBody = getATMStats(AREAID=AREAID, table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+			if AREAID.upper() == "UKO":
 
+				try:
+		
+					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
+					TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOfflineUKO(TOffline)
 
-	if AREAID.lower() == "cro":
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + msgBody
+						print msgBody
 
+					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
+					TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOfflineUKO(TOffline)
 
-		msgBody = getATMStatsCRO(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + msgBody
+						print msgBody
 
-	if AREAID.lower() == "uko":
+				except:
+					print "Ada kesalahan."
 
+			elif AREAID.upper() == "CRO":
 
-		msgBody = getATMStatsUKO(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				try:
+					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
+					TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOfflineCRO(TOffline, 0)
 
-	if AREAID.lower() == "idm":
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + msgBody
+						print msgBody
 
+					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
+					TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOfflineCRO(TOffline, 0)
 
-		msgBody = getATMStatsIDM(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + msgBody
+						print msgBody
 
-	if AREAID.lower() == "alfa":
+				except:
+					print "Ada kesalahan."
 
+			else:
 
-		msgBody = getATMStatsALFA(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+				try:
+					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
+					TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOfflineACI(TOffline, AREAID.upper())
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OFF (< 6 JAM)  "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						print msgBody
 
-	return msgBody
+					alamatURL = "http://172.18.65.42/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
+					TOffline = getTOffline(table=getWidestTable(getTableList(fetchHTML(alamatURL))))
+					msgBody = getTOfflineACI(TOffline, AREAID.upper())
+					if msgBody:	
+						msgBody = strHeaderLine +"ATM OFF (> 6 JAM)  "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						print msgBody
 
+				except:
+					print "CRO tidak dikenal."
 
-alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyoffline.pl?REGID=15&ERROR=DOWN_ST"
-msgBody += createMessage(AREAID, alamatURL)
+	except:
 
-if msgBody:	
-
-	msgBody = strHeaderLine +"ATM OFFLINE (< 6 JAM) "+ AREAID.upper() + timestamp + strHeaderLine + msgBody
-	print msgBody
-
-
-alamatURL = "http://atmpro.bri.co.id/statusatm/viewbyoffline2.pl?REGID=15&ERROR=DOWN_ST"
-msgBody2 = createMessage(AREAID, alamatURL)
-
-if msgBody2:	
-
-	msgBody2 = strHeaderLine +"ATM OFFLINE (>= 6 JAM) "+ AREAID.upper() + timestamp + strHeaderLine + msgBody2
-	print msgBody2
-
-
-
+		print "ANDA belum meng-input kode UKO/ CRO."
