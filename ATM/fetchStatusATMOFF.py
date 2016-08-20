@@ -464,7 +464,7 @@ def getTOfflineACI(TOffline, selectedACI):
 			TOfflineACI.append((strNamaCabang.upper(), strLocation, TID, getLastTunai(TID)))
 
 	TOfflineACI = sorted(TOfflineACI, key=itemgetter(0), reverse = False)
-
+	seqNo = 0
 	if TOfflineACI:
 	
 		if len(TOfflineACI) == 1:
