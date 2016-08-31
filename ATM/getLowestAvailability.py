@@ -615,7 +615,7 @@ def getLowestAvailability(table, percentThreshold):
 			trs = BeautifulSoup(str(rows[i]))
 			tdcells = trs.findAll("td")
 
-			percentAvail = tdcells[24].getText()
+			percentAvail = tdcells[26].getText()
 			ukerName = cleanUpNamaUker(str(tdcells[2].getText()))
 
 			#jumlahATM = tdcells[3].getText()
