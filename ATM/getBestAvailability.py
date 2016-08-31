@@ -616,7 +616,7 @@ def getAvailabilityRank(table):
 			trs = BeautifulSoup(str(rows[i]))
 			tdcells = trs.findAll("td")
 
-			percentAvail = tdcells[24].getText()
+			percentAvail = tdcells[26].getText()
 			ukerName = cleanUpNamaUker(tdcells[2].getText())
 			#jumlahATM = tdcells[3].getText()
 
@@ -684,85 +684,3 @@ msgBody = msgBody + "----------------------------------------------------\n"
 
 
 print msgBody
-#fileCreate("rekap.txt", msgBody)
-
-#-------------------------------------------------------------------------------------------------
-def sendTextTelegram(telegramName, strNamaFile):
-
-	telegramCommand = 'echo "send_text '+telegramName+' '+strNamaFile+'" | nc 127.0.0.1 8888'
-	#print telegramCommand
-	os.system(telegramCommand)
-
-#-------------------------------------------------------------------------------------------------
-
-fileRekapTxt = scriptDirectory + "rekap.txt"
-
-if os.path.exists(fileRekapTxt):
-	#print "file exists and will be cleared..."
-	os.system('rm '+fileRekapTxt)
-
-fileCreate(scriptDirectory +"rekap.txt", msgBody)	
-
-
-
-def cetakATMPro():
-
-        strURL = 'http://atmpro.bri.co.id/statusatm/dashboard_cabang.pl?REGID=15'
-
-        strNamaFile = "atmpro-" + time.strftime("%Y%m%d-%H-%M") + ".pdf"
-
-        strNamaFile = prepareDirectory('OUTPUT') + strNamaFile
-
-        pdfkit.from_url(strURL, strNamaFile)
-
-        return strNamaFile
-
-def prepareDirectory(strOutputDir):
-        # siapkan struktur direktori untuk penyimpanan data
-        # struktur direktori adalah ['OUTPUT', 'ATM', '2015', '04-APR', 'DAY-28$
-
-        arrDirectoryStructure = [strOutputDir, 'ATM', time.strftime("%Y"), time.strftime("%m-%b").upper() , "DAY-"+time.strftime("%d"), "PDF"]
-
-        fullPath = scriptDirectory
-
-        for i in range (0, len(arrDirectoryStructure)):
-
-                fullPath = fullPath + arrDirectoryStructure[i] + "/"
-
-                if not os.path.exists(fullPath):
-
-                        #print "creating directories:", arrDirectoryStructure[i]
-                        os.mkdir(fullPath)
-                        os.chdir(fullPath)
-
-        #print fullPath
-
-        return fullPath
-
-def sendFileTelegram(telegramName, strNamaFile):
-
-        telegramCommand = 'echo "send_file '+telegramName+' '+strNamaFile+'" | nc 127.0.0.1 8888'
-	#print telegramCommand
-        os.system(telegramCommand)
-
-strNamaFilePDF = cetakATMPro()
-
-
-
-def SendTelegramRekap():
-
-	fName = scriptDirectory+"conf/rankAudience.888"
-		
-	f = open(fName)
-
-	for baris in f.readlines():
-
-		sendTextTelegram(baris.strip(), fileRekapTxt)
-		#sendFileTelegram(baris.strip(), strNamaFilePDF)
-
-	f.close()
-
-	return True
-
-
-SendTelegramRekap()
