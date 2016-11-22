@@ -6,6 +6,7 @@
 # 13 Agustus 2016 13:58:28 - 15:30, 16:33
 # 15 Agustus 2016 20:46 detail durasi hingga kini
 # 20.08.2016 16:08
+# 22.11.2016 15:48 * asterisk
 # to be used with telegram-bot plugin
 #---------------------------------------
 # usage: fetchStatusATMOFF cro/uko/kode cabang
@@ -347,13 +348,13 @@ def getTOfflineCabang(TOffline, branchCode):
 		msgBody = strHeaderLine +"ATM OFFLINE "+ branchCode +timestamp+ strHeaderLine + msgBody + "\nTidak ada ATM kategori ini di wilayah Anda!"
 
 	if TOfflineUKO:
-		msgBody += "[UKO]\n"
+		msgBody += "*[UKO]*\n"
 		for i in range(0, len(TOfflineUKO)):
 					msgBody += str(i+1)+" "+ str(TOfflineUKO[i][0])+", "+str(TOfflineUKO[i][1])+", "+durasiHinggaKini(str(TOfflineUKO[i][2]))+"\n"
 		msgBody += "\n"			
 
 	if TOfflineCRO:
-		msgBody += "[CRO]\n"
+		msgBody += "*[CRO]*\n"
 		for i in range(0, len(TOfflineCRO)):
 					msgBody += str(i+1)+" "+ str(TOfflineCRO[i][0]) +": "+str(TOfflineCRO[i][1])+", "+str(TOfflineCRO[i][2])+", "+durasiHinggaKini(str(TOfflineCRO[i][3]))+"\n"
 
@@ -376,7 +377,7 @@ def getTOfflineCRO(TOffline, selectedCRO):
 
 		for i in range(0, len(TOffline)):
 			if TOffline[i][2] == 1:
-				strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+				strNamaCabang = "*"+cleanupNamaUker(TOffline[i][-1])+"*"
 				TID = TOffline[i][5]
 				TOfflineCRO.append((TOffline[i][1], TOffline[i][4], TID, getLastTunai(TID)))
 
@@ -384,7 +385,7 @@ def getTOfflineCRO(TOffline, selectedCRO):
 
 		arrCRO = [""]
 		arrCRO.append(selectedCRO)
-		strCRO = "["+selectedCRO+"]"
+		strCRO = "*["+selectedCRO+"]*"
 	
 		for i in range(0, len(TOffline)):
 
@@ -399,7 +400,7 @@ def getTOfflineCRO(TOffline, selectedCRO):
 		for i in range(0, len(TOfflineCRO)):
 
 			if TOfflineCRO[i-1][0] != TOfflineCRO[i][0]:
-				msgBody += "\n[" + str(TOfflineCRO[i][0]) + "]\n"
+				msgBody += "\n*[" + str(TOfflineCRO[i][0]) + "]*\n"
 				seqNo = 0
 
 			for j in range(0, len(arrCRO)):
@@ -425,7 +426,7 @@ def getTOfflineUKO(TOffline):
 	for i in range(0, len(TOffline)):
 	
 		if TOffline[i][2] == 0:
-			strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+			strNamaCabang = "*"+cleanupNamaUker(TOffline[i][-1])+"*"
 			TID = TOffline[i][5]
 			TOfflineUKO.append((strNamaCabang.upper(), TOffline[i][4], TID, getLastTunai(TID)))
 
@@ -433,7 +434,7 @@ def getTOfflineUKO(TOffline):
 
 	if TOfflineUKO:
 	
-		msgBody += "[UKO]\n"
+		msgBody += "*[UKO]*\n"
 		for i in range(0, len(TOfflineUKO)):
 			if TOfflineUKO[i-1][0] != TOfflineUKO[i][0]:
 				msgBody +=  "\n"+str(TOfflineUKO[i][0]) + "\n"
@@ -448,6 +449,7 @@ def getTOfflineUKO(TOffline):
 	return 	msgBody
 
 def getTOfflineACI(TOffline, selectedACI):
+	# Alfamart, Ceriamart, Indomart
 
 	msgBody = ""
 	seqNo = 0
@@ -458,7 +460,7 @@ def getTOfflineACI(TOffline, selectedACI):
 
 		if selectedACI in TOffline[i][4]:
 			seqNo += 1
-			strNamaCabang = cleanupNamaUker(TOffline[i][-1])
+			strNamaCabang = "*"+cleanupNamaUker(TOffline[i][-1])+"*"
 			TID = TOffline[i][5]
 			strLocation = TOffline[i][4]
 			TOfflineACI.append((strNamaCabang.upper(), strLocation, TID, getLastTunai(TID)))
