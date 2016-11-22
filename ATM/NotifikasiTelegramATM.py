@@ -4,7 +4,6 @@
 # NotifikasiTelegramATM.py
 # (c) Jansen A. Simanullang
 # 06.10.2015 - 04.02.2016 13:02
-# 22.11.2016 a change from "Pengelola" to "Main Branch"
 # to be used with cron and MariaDB
 #---------------------------------------
 # Python usage:
@@ -65,7 +64,7 @@ asciiArt = asciiArt +" ▐██▀███▄  ▀███▄███▀  �
 asciiArt = asciiArt +"""
   ███▄▀███▄  ▀███▀  ▄███▀▄███     
   ▐█▄▀█▄▀███ ▄▀ ▀▄ ███▀▄█▀▄█▌     (c) JANSEN SIMANULLANG
-   ███▄▀█▄██ ██ ██ ██▄█▀▄███      MEI 2015 - NOVEMBER 2016
+   ███▄▀█▄██ ██ ██ ██▄█▀▄███      MEI 2015 - JANUARI 2016
     ▀███▄▀██ ██ ██ ██▀▄███▀
    █▄ ▀█████ █████ █████▀ ▄█        \__/  \__/  \__/  \__/  \__/  \__/
    ███        ███	 ███      __/  \__/  \__/  \__/  \__/  \__/  \_
@@ -1353,7 +1352,7 @@ def NotifikasiATM():
 
 		availText = "------------------------------------\nAvailability = " + percentAvail +"% -- "+ strColor
 
-		msgBody = msgSubject +"\n*"+ availText +"*\n"+ str(prepareMessage(arrBranchURL[i]))
+		msgBody = msgSubject +"\n"+ availText +"\n"+ str(prepareMessage(arrBranchURL[i]))
 
 		print msgBody
 		
