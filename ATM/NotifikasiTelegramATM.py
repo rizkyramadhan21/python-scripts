@@ -103,7 +103,6 @@ __/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/
   \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \_
 __/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/ 
   \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \_
-
 """
 def clearScreen():
 
@@ -1135,7 +1134,7 @@ def getPengelolaSupervisi(strTID):
 
 		table = getLargestTable(getTableList(strHTML))
 
-		strHTMLTableRows = getSpecificRows(table, getRowIndex(table, "Main Branch"))
+		strHTMLTableRows = getSpecificRows(table, getRowIndex(table, "Replenish By"))
 
 		mysoup = BeautifulSoup(strHTMLTableRows)
 
@@ -1267,10 +1266,8 @@ def TelegramBotSender(chat_id, strText):
 	encText=urllib.quote_plus(strText)
 
 	strURL = "https://api.telegram.org/bot"+secretKey+"/sendMessage?chat_id="+chat_id+"&text="+urllib.quote_plus(strText)
-
+	# comment out this line below for testing purposes
 	os.system('proxychains w3m -dump "'+ strURL+'"')
-
-
 
 
 
@@ -1398,6 +1395,7 @@ def NotifikasiATM():
 
 			print arrBranchName[i]+"--->: "+ telegram_name + "            \r"
 			#print readTextFile(strNamaFile)
+			
 
 			TelegramBotSender(telegram_id, strText)
 
