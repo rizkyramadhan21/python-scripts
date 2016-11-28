@@ -4,6 +4,7 @@
 # (c) Jansen A. Simanullang, 11:15:55
 # 14 Januari 2016 09:04:11
 # 13 Agustus 2016 13:58:28 - 15:30, 16:33
+# 28 November 2016 14:36 # asterisks added
 # to be used with telegram-bot plugin
 #---------------------------------------
 # usage: fetchStatusATMNonTunai cro/uko/kode cabang
@@ -350,13 +351,13 @@ def getTNonTunaiCabang(TNonTunai, branchCode):
 		msgBody = strHeaderLine +"ATM NON TUNAI "+ branchCode +timestamp+ strHeaderLine + msgBody + "\nEXCELLENT WORK!\nALL ONLINE ATM IS READY TO DISPENSE MONEY!"
 
 	if TNonTunaiUKO:
-		msgBody += "[UKO]\n"
+		msgBody += "*[UKO]*\n"
 		for i in range(0, len(TNonTunaiUKO)):
 					msgBody += str(i+1)+" "+ str(TNonTunaiUKO[i][0])+", "+str(TNonTunaiUKO[i][1])+"\n"
 		msgBody += "\n"			
 
 	if TNonTunaiCRO:
-		msgBody += "[CRO]\n"
+		msgBody += "*[CRO]*\n"
 		for i in range(0, len(TNonTunaiCRO)):
 					msgBody += str(i+1)+" "+ str(TNonTunaiCRO[i][0]) +": "+str(TNonTunaiCRO[i][1])+", "+str(TNonTunaiCRO[i][2])+"\n"
 
@@ -375,7 +376,7 @@ def getTNonTunaiCRO(TNonTunai, selectedCRO):
 	if selectedCRO == 0:
 
 		selectedCRO = "ALL"
-		strCRO = "[ALL CRO]"
+		strCRO = "*[ALL CRO]*"
 
 		for i in range(0, len(TNonTunai)):
 			if TNonTunai[i][2] == 1:
@@ -386,7 +387,7 @@ def getTNonTunaiCRO(TNonTunai, selectedCRO):
 
 		arrCRO = [""]
 		arrCRO.append(selectedCRO)
-		strCRO = "["+selectedCRO+"]"
+		strCRO = "*["+selectedCRO+"]*"
 	
 		for i in range(0, len(TNonTunai)):
 
@@ -400,7 +401,7 @@ def getTNonTunaiCRO(TNonTunai, selectedCRO):
 		for i in range(0, len(TNonTunaiCRO)):
 
 			if TNonTunaiCRO[i-1][0] != TNonTunaiCRO[i][0]:
-				msgBody += "\n[" + str(TNonTunaiCRO[i][0]) + "]\n"
+				msgBody += "\n*[" + str(TNonTunaiCRO[i][0]) + "]*\n"
 				seqNo = 0
 
 			for j in range(0, len(arrCRO)):
@@ -426,14 +427,14 @@ def getTNonTunaiUKO(TNonTunai):
 	for i in range(0, len(TNonTunai)):
 	
 		if TNonTunai[i][2] == 0:
-			strNamaCabang = cleanupNamaUker(TNonTunai[i][-1])
+			strNamaCabang = "*"+cleanupNamaUker(TNonTunai[i][-1])+"*"
 			TNonTunaiUKO.append((strNamaCabang.upper(), TNonTunai[i][4], TNonTunai[i][5]))
 
 	TNonTunaiUKO = sorted(TNonTunaiUKO, key=itemgetter(0), reverse = False)
 
 	if TNonTunaiUKO:
 	
-		msgBody += "[UKO]\n"
+		msgBody += "*[UKO]*\n"
 		for i in range(0, len(TNonTunaiUKO)):
 			if TNonTunaiUKO[i-1][0] != TNonTunaiUKO[i][0]:
 				msgBody +=  "\n"+str(TNonTunaiUKO[i][0]) + "\n"
@@ -494,7 +495,7 @@ def cleanUpLocation(strLocation):
 
 msgBody =""
 
-timestamp = "\nper "+ time.strftime("%d-%m-%Y pukul %H:%M")
+timestamp = "*\nper "+ time.strftime("%d-%m-%Y pukul %H:%M")
 
 if len(sys.argv) > 0:
 
@@ -522,7 +523,7 @@ if len(sys.argv) > 0:
 					msgBody = getTNonTunaiUKO(TNonTunai)
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						msgBody = strHeaderLine +"*ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 				except:
@@ -536,7 +537,7 @@ if len(sys.argv) > 0:
 					msgBody = getTNonTunaiCRO(TNonTunai, 0)
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						msgBody = strHeaderLine +"*ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 				except:
@@ -550,7 +551,7 @@ if len(sys.argv) > 0:
 					msgBody = getTNonTunaiCRO(TNonTunai, AREAID.upper())
 
 					if msgBody:	
-						msgBody = strHeaderLine +"ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
+						msgBody = strHeaderLine +"*ATM NON TUNAI "+ AREAID.upper() + " - "+regionName+ timestamp+ strHeaderLine + msgBody
 						print msgBody
 
 				except:
