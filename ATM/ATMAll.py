@@ -4,6 +4,7 @@
 # (c) Jansen A. Simanullang, 01.08.2016
 # 11.08.2016 15:38
 # 20.08.2016 16:04
+# 10.12.2016 geser dari 26 ke 29
 #---------------------------------------
 # usage: python ATMAll.py
 #---------------------------------------
@@ -392,9 +393,9 @@ def getTableContents(table):
 		else:			
 			ATM = 0
 		#---------------------------------------
-		textAvail = tdcells[24].getText()
+		textAvail = tdcells[29].getText()
 		if (textAvail) != '':
-			AVAIL = float(tdcells[24].getText()) 
+			AVAIL = float(tdcells[29].getText()) 
 		else:			
 			AVAIL = 0
 		#---------------------------------------
