@@ -335,7 +335,7 @@ def getTableContents(table):
 
 		TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, OF6, PROB))
 
-		TProblem = sorted(TProblem, key=itemgetter(7, 1), reverse = False)
+		TProblem = sorted(TProblem, key=itemgetter(8, 1), reverse = False)
 
 
 	# RANKING UTILITY ATM
@@ -773,6 +773,10 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	style = xlwt.easyxf(styler('sky_blue_10', 240), num_format_str= '0.00')
 	sheet1.write(40, 20, Formula("SUM(V5:V40)/T41"), style )
+
+	lastRow = 41
+
+	sheet1.write_merge(lastRow, lastRow, offCol, offCol+20, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
 
 	namaFileXLS = prepareDirectory("OUTPUT") + "ATM ALL-" + RegionName +time.strftime("-%Y%m%d-%H")+'.xls'
 
