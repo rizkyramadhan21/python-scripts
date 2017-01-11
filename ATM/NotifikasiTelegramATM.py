@@ -3,7 +3,7 @@
 #---------------------------------------
 # NotifikasiTelegramATM.py
 # (c) Jansen A. Simanullang
-# 06.10.2015 - 04.02.2016 13:02
+# 06.10.2015 - 11.01.2017 07:18
 # to be used with cron and MariaDB
 #---------------------------------------
 # Python usage:
@@ -1028,67 +1028,67 @@ def getATMProbStats(table):
 
 	if ((numOOSUKO > 0) or (numCOUKO > 0) or (numCLUKO > 0) or (numDFUKO > 0) or (numCOMUKO > 0) or (numCCRUKO > 0)):
 		
-		msgBody = msgBody + "\n*[PROBLEM ATM UKO]*\n"
+		msgBody = msgBody + "\n**[PROBLEM ATM UKO]**\n"
 
 	if numCOUKO:
 
-		msgBody = msgBody + "\n*CASH OUT*: "+str(numCOUKO) + "\n" + "\n".join(arrCOUKO) + "\n"
+		msgBody = msgBody + "\n**CASH OUT**: "+str(numCOUKO) + "\n" + "\n".join(arrCOUKO) + "\n"
 
 	if numCLUKO:
 
-		msgBody = msgBody + "\n*CASH LOW*: "+str(numCLUKO) + "\n" + "\n".join(arrCLUKO) + "\n"
+		msgBody = msgBody + "\n**CASH LOW**: "+str(numCLUKO) + "\n" + "\n".join(arrCLUKO) + "\n"
 
 	if numDFUKO:
 
-		msgBody = msgBody + "\n*DISPENSER FAILURE*: "+str(numDFUKO) + "\n" + "\n".join(arrDFUKO) + "\n"
+		msgBody = msgBody + "\n**DISPENSER FAILURE**: "+str(numDFUKO) + "\n" + "\n".join(arrDFUKO) + "\n"
 
 	if numOOSUKO:
 
-		msgBody = msgBody + "\n*OOS*: "+str(numOOSUKO) + "\n" + "\n".join(arrOOSUKO) + "\n"
+		msgBody = msgBody + "\n**OOS**: "+str(numOOSUKO) + "\n" + "\n".join(arrOOSUKO) + "\n"
 
 	if numCOMUKO:
 
-		msgBody = msgBody + "\n*COM*: "+str(numCOMUKO) + "\n" + "\n".join(arrCOMUKO) + "\n"
+		msgBody = msgBody + "\n**COM**: "+str(numCOMUKO) + "\n" + "\n".join(arrCOMUKO) + "\n"
 
 	if numCCRUKO:
 
-		msgBody = msgBody + "\n*CCR*: "+str(numCCRUKO) + "\n" + "\n".join(arrCCRUKO) + "\n"
+		msgBody = msgBody + "\n**CCR**: "+str(numCCRUKO) + "\n" + "\n".join(arrCCRUKO) + "\n"
 
 
 	if (numOOSCRO !=0 or numCOCRO !=0 or numCLCRO !=0 or numDFCRO !=0 or numCOMCRO !=0 or numCCRCRO !=0):
 		
-		msgBody = msgBody + "\n*[PROBLEM ATM CRO]*\n"
+		msgBody = msgBody + "\n**[PROBLEM ATM CRO]**\n"
 
 	if numCOCRO:
 
-		msgBody = msgBody + "\n*CASH OUT*: "+str(numCOCRO) + "\n" + "\n".join(arrCOCRO) + "\n"
+		msgBody = msgBody + "\n**CASH OUT**: "+str(numCOCRO) + "\n" + "\n".join(arrCOCRO) + "\n"
 
 	if numCLCRO:
 
-		msgBody = msgBody + "\n*CASH LOW*: "+str(numCLCRO) + "\n" + "\n".join(arrCLCRO) + "\n"
+		msgBody = msgBody + "\n**CASH LOW**: "+str(numCLCRO) + "\n" + "\n".join(arrCLCRO) + "\n"
 
 	if numDFCRO:
 
-		msgBody = msgBody + "\n*DISPENSER FAILURE*: "+str(numDFCRO) + "\n" + "\n".join(arrDFCRO) + "\n"
+		msgBody = msgBody + "\n**DISPENSER FAILURE**: "+str(numDFCRO) + "\n" + "\n".join(arrDFCRO) + "\n"
 
 	if numOOSCRO:
 
-		msgBody = msgBody + "\n*OOS*: "+str(numOOSCRO) + "\n" + "\n".join(arrOOSCRO) + "\n"
+		msgBody = msgBody + "\n**OOS**: "+str(numOOSCRO) + "\n" + "\n".join(arrOOSCRO) + "\n"
 
 	if numCOMCRO:
 
-		msgBody = msgBody + "\n*COM*: "+str(numCOMCRO) + "\n" + "\n".join(arrCOMCRO) + "\n"
+		msgBody = msgBody + "\n**COM**: "+str(numCOMCRO) + "\n" + "\n".join(arrCOMCRO) + "\n"
 
 	if numCCRCRO:
 
-		msgBody = msgBody + "\n*CCR*: "+str(numCCRCRO) + "\n" + "\n".join(arrCCRCRO) + "\n"
+		msgBody = msgBody + "\n**CCR**: "+str(numCCRCRO) + "\n" + "\n".join(arrCCRCRO) + "\n"
 
 	if msgBody:
 
 		msgBody = msgBody
 	else:
 
-		msgBody = "\n*EXCELLENT WORK! EVERYTHING IS OKAY!*"
+		msgBody = "\n**EXCELLENT WORK! EVERYTHING IS OKAY!**"
 
 	return msgBody
 
@@ -1177,7 +1177,7 @@ def getAvailBranch(branchCode):
 
 		arrTDs = mysoup.findAll('td')
 
-		percentAvail = arrTDs[26].getText()
+		percentAvail = arrTDs[29].getText()
 		
 
 	except IndexError:
@@ -1341,7 +1341,7 @@ def NotifikasiATM():
 
 	for i in range(0, len(arrBranchURL)):
 	
-		msgSubject = "*NOTIFIKASI ATM "+arrBranchName[i] +"* ("+ arrBranchCode[i] +")\n"+time.strftime("%d.%m.%Y-%H:%M")
+		msgSubject = "**NOTIFIKASI ATM "+arrBranchName[i] +"** ("+ arrBranchCode[i] +")\n"+time.strftime("%d.%m.%Y-%H:%M")
 
 		percentAvail = getAvailBranch(arrBranchCode[i])
 
