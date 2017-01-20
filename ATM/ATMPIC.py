@@ -6,6 +6,7 @@
 # 20.08.2016 16:04
 # 14.09.2016 penambahan OFF di atas 6 jam
 # 10.12.2016 geser dari 26 ke 29
+# 20.01.2017 geser dari 29 ke 30
 #---------------------------------------
 # usage: python ATMCluster.py
 #---------------------------------------
@@ -467,9 +468,9 @@ def getTableContents(table):
 		else:			
 			ATM = 0
 		#---------------------------------------
-		textAvail = tdcells[29].getText()
+		textAvail = tdcells[30].getText()
 		if (textAvail) != '':
-			AVAIL = float(tdcells[29].getText()) 
+			AVAIL = float(tdcells[30].getText()) 
 		else:			
 			AVAIL = 0
 		#---------------------------------------
