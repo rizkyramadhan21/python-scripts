@@ -6,6 +6,7 @@
 # 20.08.2016 16:04
 # 10.12.2016 geser dari 26 ke 29
 # 13.12.2016 tambah OFF6
+# 20.01.2017 tambah PINGOK
 #---------------------------------------
 # usage: python ATMAll.py
 #---------------------------------------
@@ -329,11 +330,19 @@ def getTableContents(table):
 			OF6 = 0
 			#print "OFF NIHIL"
 		#---------------------------------------
-		PROB = NOP + RSK + PROBOPS + OOS + OFF + OF6
+		
+		textPINGOK = tdcells[15].getText()
+		if textPINGOK:
+			PINGOK = int(tdcells[15].getText()) 
+		else:			
+			PINGOK = 0
+			#print "OFF NIHIL"
+		#---------------------------------------
+		PROB = NOP + RSK + PROBOPS + OOS + OFF + OF6 + PINGOK
 
 		#print kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, PROB
 
-		TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, OF6, PROB))
+		TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, OF6, PINGOK, PROB))
 
 		TProblem = sorted(TProblem, key=itemgetter(8, 1), reverse = False)
 
@@ -401,9 +410,9 @@ def getTableContents(table):
 		else:			
 			ATM = 0
 		#---------------------------------------
-		textAvail = tdcells[29].getText()
+		textAvail = tdcells[30].getText()
 		if (textAvail) != '':
-			AVAIL = float(tdcells[29].getText()) 
+			AVAIL = float(tdcells[30].getText()) 
 		else:			
 			AVAIL = 0
 		#---------------------------------------
@@ -609,7 +618,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 	sheet1.row(1).height_mismatch = True
 	sheet1.row(1).height = 360
 	sheet1.write_merge(offRow+shiftDown, offRow+shiftDown, offCol, offCol+20, 'posisi tanggal ' +time.strftime("%d/%m/%Y-%H:%M") , xlwt.easyxf(styleTitle))
-	contentAlignmentHorz = ["center", "right", "center", "center", "center", "center", "center", "center", "center"]
+	contentAlignmentHorz = ["center", "right", "center", "center", "center", "center", "center", "center", "center" , "center"]
 
 
 	def styler(strColor,  fontHeight):
@@ -624,7 +633,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	def makeHeader(xRow, yCol, jenisTabel):
 
-		arrJudul = ["CODE", "BRANCH", "NOP", "RSK", "OPS", "OOS", "OFF", "OF6", "JML"]
+		arrJudul = ["CODE", "BRANCH", "NOP", "RSK", "OPS", "OOS", "OFF", "OF6", "POK" , "JML"]
 
 		sheet1.write_merge(xRow+2*shiftDown, xRow+2*shiftDown, yCol, yCol+len(arrJudul)-1, 'RANKING ' + jenisTabel, xlwt.easyxf(styler('sky_blue_10', 240)))
 
@@ -644,7 +653,8 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 	sheet1.col(offCol+6).width = 4*315
 	sheet1.col(offCol+7).width = 4*315
 	sheet1.col(offCol+8).width = 4*315
-	sheet1.col(offCol+9).width = 6*315
+	sheet1.col(offCol+9).width = 4*315
+	sheet1.col(offCol+10).width = 6*315
 
 	for i in range (0, len(TProblem)):
 		#print len(TProblem[i])
@@ -664,7 +674,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	# UTILITY ----------------------------------------------------
 
-	shiftLeft = 10
+	shiftLeft = 11
 
 	def makeHeader2(xRow, yCol, jenisTabel):
 
@@ -706,7 +716,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	# AVAILABILITY ----------------------------------------------------
 
-	shiftLeft = 17
+	shiftLeft = 18
 
 	def makeHeader3(xRow, yCol, jenisTabel):
 
@@ -751,32 +761,33 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 	sheet1.write(40, 5, Formula("SUM(F5:F40)"), style)	
 	sheet1.write(40, 6, Formula("SUM(G5:G40)"), style)	
 	sheet1.write(40, 7, Formula("SUM(H5:H40)"), style)
-	sheet1.write(40, 8, Formula("SUM(I5:I40)"), style)	
+	sheet1.write(40, 8, Formula("SUM(I5:I40)"), style)
+	sheet1.write(40, 9, Formula("SUM(J5:J40)"), style)	
 	#TOTAL 2
-	sheet1.write(40, 10, '', style)	
-	sheet1.write(40, 11, 'TOTAL', style)	
-	sheet1.write(40, 12, Formula("SUM(M5:M40)"), style)	
+	sheet1.write(40, 11, '', style)	
+	sheet1.write(40, 12, 'TOTAL', style)	
 	sheet1.write(40, 13, Formula("SUM(N5:N40)"), style)	
 	sheet1.write(40, 14, Formula("SUM(O5:O40)"), style)	
-	sheet1.write(40, 15, Formula("N41/M41*100"), style)	
+	sheet1.write(40, 15, Formula("SUM(P5:P40)"), style)	
+	sheet1.write(40, 16, Formula("O41/N41*100"), style)	
 	#TOTAL 2
-	sheet1.write(40, 17, '', style)
-	sheet1.write(40, 18, 'TOTAL', style)	
-	sheet1.write(40, 19, Formula("SUM(T5:T40)"), style)	
-	sheet1.write(40, 20, Formula("V41"), style)	
+	sheet1.write(40, 18, '', style)
+	sheet1.write(40, 19, 'TOTAL', style)	
+	sheet1.write(40, 20, Formula("SUM(U5:U40)"), style)	
+	sheet1.write(40, 21, Formula("U41"), style)	
 
 
 	for i in range(5, 41):
 
-		strFormula = "PRODUCT(T" + str(i)+ ":U"+str(i)+")"
-		sheet1.write(i-1, 21, Formula(strFormula), xlwt.easyxf('font: color white;'))
+		strFormula = "PRODUCT(U" + str(i)+ ":V"+str(i)+")"
+		sheet1.write(i-1, 22, Formula(strFormula), xlwt.easyxf('font: color white;'))
 
 	style = xlwt.easyxf(styler('sky_blue_10', 240), num_format_str= '0.00')
-	sheet1.write(40, 20, Formula("SUM(V5:V40)/T41"), style )
+	sheet1.write(40, 21, Formula("SUM(W5:W40)/U41"), style )
 
 	lastRow = 41
 
-	sheet1.write_merge(lastRow, lastRow, offCol, offCol+20, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
+	sheet1.write_merge(lastRow, lastRow, offCol, offCol+22, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
 
 	namaFileXLS = prepareDirectory("OUTPUT") + "ATM ALL-" + RegionName +time.strftime("-%Y%m%d-%H")+'.xls'
 
