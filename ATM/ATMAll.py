@@ -336,7 +336,7 @@ def getTableContents(table):
 			PINGOK = int(tdcells[15].getText()) 
 		else:			
 			PINGOK = 0
-			#print "OFF NIHIL"
+			#print "PING OK NIHIL"
 		#---------------------------------------
 		PROB = NOP + RSK + PROBOPS + OOS + OFF + OF6 + PINGOK
 
@@ -344,7 +344,7 @@ def getTableContents(table):
 
 		TProblem.append((kodeCabang, namaCabang, NOP, RSK, PROBOPS, OOS, OFF, OF6, PINGOK, PROB))
 
-		TProblem = sorted(TProblem, key=itemgetter(8, 1), reverse = False)
+		TProblem = sorted(TProblem, key=itemgetter(9, 1), reverse = False)
 
 
 	# RANKING UTILITY ATM
