@@ -612,12 +612,12 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 	styleTitle += 'align: vertical center, horizontal center, wrap on;'
 	styleTitle += 'font: name Tahoma, height 280, bold 1;'
 
-	sheet1.write_merge(offRow, offRow, offCol, offCol+20, 'ATM PRO ' + RegionName , xlwt.easyxf(styleTitle))
+	sheet1.write_merge(offRow, offRow, offCol, offCol+21, 'ATM PRO ' + RegionName , xlwt.easyxf(styleTitle))
 	shiftDown = 1
 
 	sheet1.row(1).height_mismatch = True
 	sheet1.row(1).height = 360
-	sheet1.write_merge(offRow+shiftDown, offRow+shiftDown, offCol, offCol+20, 'posisi tanggal ' +time.strftime("%d/%m/%Y-%H:%M") , xlwt.easyxf(styleTitle))
+	sheet1.write_merge(offRow+shiftDown, offRow+shiftDown, offCol, offCol+21, 'posisi tanggal ' +time.strftime("%d/%m/%Y-%H:%M") , xlwt.easyxf(styleTitle))
 	contentAlignmentHorz = ["center", "right", "center", "center", "center", "center", "center", "center", "center" , "center"]
 
 
@@ -660,7 +660,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 		#print len(TProblem[i])
 		for j in range(0,len(TProblem[i])):
 
-			strColor = colorProblem(TProblem[i][8])
+			strColor = colorProblem(TProblem[i][9])
 			contentStyle = 'font: name Tahoma, height 180;'
 			contentStyle += 'pattern: pattern solid, fore_colour '+strColor+';'
 			contentStyle += 'align: horiz '+contentAlignmentHorz[j]
@@ -787,7 +787,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	lastRow = 41
 
-	sheet1.write_merge(lastRow, lastRow, offCol, offCol+22, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
+	sheet1.write_merge(lastRow, lastRow, offCol, offCol+21, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
 
 	namaFileXLS = prepareDirectory("OUTPUT") + "ATM ALL-" + RegionName +time.strftime("-%Y%m%d-%H")+'.xls'
 
