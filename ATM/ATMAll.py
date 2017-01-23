@@ -530,17 +530,17 @@ def colorAvail(percentAvail):
 	return strColor
 
 
-def colorProblem(PRO):
+def colorProblem(PROB):
 
-	strColor = str(PRO)
+	strColor = str(PROB)
 
-	if PRO == 0.00:
+	if PROB == 0.00:
 		strColor = "hijau_tua"
-	if PRO >= 1:
+	if PROB >= 1:
 		strColor = "hijau_muda"
-	if PRO == 3:
+	if PROB == 3:
 		strColor = "kuning"
-	if PRO > 3:
+	if PROB > 3:
 		strColor = "merah"
 
 
