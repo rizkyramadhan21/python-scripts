@@ -273,7 +273,7 @@ def getRowIndex(table, strSearchKey):
 	return rowIndex
 
 
-def getTProRatih(table, strCmd):
+def getTProRatih(table):
 	#print table
 	# strCmd = OOS, OFF, CCR, CO, CL
 	soup = BeautifulSoup(str(table))
@@ -294,10 +294,11 @@ def getTProRatih(table, strCmd):
 		
 		if tdcells:
 
-			colCMD = {"OOS":3, "OFF":4, "CCR":6, "CO":8, "CL":9}
-			#print colCMD[strCmd.upper()]
-			for key in colCMD:
-				if tdcells[colCMD[key]].getText() == "FAIL":
+			columnMap = {"OOS":3, "OFF":4, "CCR":6, "CO":8, "CL":9}
+
+			for key in columnMap:
+
+				if tdcells[columnMap[key]].getText() == "FAIL":
 
 					strTID = tdcells[1].getText()
 					strLocation = tdcells[2].getText()
@@ -320,8 +321,7 @@ def getTProRatih(table, strCmd):
 						intCRO = 0
 						namaCROUKO = "*"+cleanupNamaUker(strReplenish)+"*"
 
-	
-					#print strKodeCabang, namaCROUKO, intCRO, strReplenish, strLocation, strTID, strNamaCabang, strLastTunai
+
 					TProRatih.append((strKodeCabang, strNamaCabang, key, strReplenish, str(intCRO), namaCROUKO, strTID, strLocation,  strLastTunai))
 			
 	TProRatih = sorted(TProRatih, key=itemgetter(1, 2, 3, 4), reverse = False)
@@ -472,19 +472,20 @@ alamatURL = "http://172.18.65.42/statusatm/viewbyupnontunai.pl?REGID=15"
 alamatURL = "http://172.18.65.42/statusatm/viewbyregion3drp.pl?REGID=15"
 
 
-strCmd = "OFF"
 branchCode = "1144"
 
 table=getLargestTable(getTableList(fetchHTML(alamatURL)))
-TProRatih = getTProRatih(table, strCmd)
+TProRatih = getTProRatih(table)
 
 numProb = len(TProRatih)
 count = 0
 msgBody = ""
+arrMsgBody = []
 
 for i in range(0,numProb):
 
 	strEntry = TProRatih[i][5]+", "+ TProRatih[i][6]+", "+ TProRatih[i][7]+", "+ TProRatih[i][8]
+
 	# if same branch code
 	if TProRatih[i][0] == TProRatih[i-1][0]:
 
@@ -497,12 +498,13 @@ for i in range(0,numProb):
 
 		else:
 			count = 1
-			msgBody += "\n"+TProRatih[i][2]+"\n("+str(count)+")"+ strEntry
+			msgBody += "\n**"+TProRatih[i][2]+"**\n("+str(count)+")"+ strEntry
 		
 
 	else:
 		count = 1
-		msgBody += "\n\n**ATM MERAH PUTIH**\n**"+TProRatih[i][1].upper()+" ("+TProRatih[i][0]+")**\n----------------------------\n"+ TProRatih[i][2]+ "\n("+str(count)+")"+ strEntry
+
+		msgBody += "\n\n**ATM MERAH PUTIH**\n**"+TProRatih[i][1].upper()+" ("+TProRatih[i][0]+")**\n"+time.strftime("%d.%m.%Y-%H:%M")+"\n----------------------------\n**"+ TProRatih[i][2]+ "**\n("+str(count)+")"+ strEntry
 
 
 print msgBody
