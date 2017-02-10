@@ -3,7 +3,7 @@
 #---------------------------------------
 # NotifikasiTelegramATM.py
 # (c) Jansen A. Simanullang
-# 06.10.2015 - 20.01.2017 07:18
+# 06.10.2015 - 10.02.2017 10:07
 # to be used with cron and MariaDB
 #---------------------------------------
 # Python usage:
@@ -1177,7 +1177,7 @@ def getAvailBranch(branchCode):
 
 		arrTDs = mysoup.findAll('td')
 
-		percentAvail = arrTDs[30].getText()
+		percentAvail = arrTDs[34].getText()
 		
 
 	except IndexError:
