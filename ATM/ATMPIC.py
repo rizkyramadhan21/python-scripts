@@ -345,25 +345,25 @@ def getTableContents(table):
 		dText = tdcells[2].getText()
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
-		textNOPG = tdcells[4].getText()
+		textNOPG = tdcells[5].getText()
 		if textNOPG:
-			NOPG = int(tdcells[4].getText()) 
+			NOPG = int(tdcells[5].getText()) 
 		else:			
 			NOPG = 0
 			#print "NOPG NIHIL"
 		#---------------------------------------
-		textNOPNG = tdcells[5].getText()
+		textNOPNG = tdcells[6].getText()
 		if textNOPNG:
-			NOPNG = int(tdcells[5].getText()) 
+			NOPNG = int(tdcells[6].getText()) 
 		else:
 			NOPNG = 0
 			#print "NOPNG NIHIL"
 		#---------------------------------------
 		NOP = NOPG + NOPNG
 		#---------------------------------------
-		textRSKG = tdcells[6].getText()
+		textRSKG = tdcells[7].getText()
 		if textRSKG:
-			RSKG = int(tdcells[6].getText()) 
+			RSKG = int(tdcells[7].getText()) 
 		else:			
 			RSKG = 0
 			#print "RSKG NIHIL"
@@ -377,30 +377,30 @@ def getTableContents(table):
 		#---------------------------------------
 		RSK = RSKG + RSKNG
 		#---------------------------------------
-		textPROBOPS = tdcells[8].getText()
+		textPROBOPS = tdcells[9].getText()
 		if textPROBOPS:
-			PROBOPS = int(tdcells[8].getText()) 
+			PROBOPS = int(tdcells[9].getText()) 
 		else:			
 			PROBOPS = 0
 			#print "PROBOPS NIHIL"
 		#---------------------------------------
-		textOOS= tdcells[12].getText()
+		textOOS= tdcells[13].getText()
 		if textOOS:
-			OOS = int(tdcells[12].getText()) 
+			OOS = int(tdcells[13].getText()) 
 		else:			
 			OOS = 0
 			#print "OOS NIHIL"
 		#---------------------------------------
-		textOFF = tdcells[13].getText()
+		textOFF = tdcells[14].getText()
 		if textOFF:
-			OFF = int(tdcells[13].getText()) 
+			OFF = int(tdcells[14].getText()) 
 		else:			
 			OFF = 0
 			#print "OFF NIHIL"
 		#---------------------------------------
-		textOF6 = tdcells[14].getText()
+		textOF6 = tdcells[15].getText()
 		if textOF6:
-			OF6 = int(tdcells[14].getText()) 
+			OF6 = int(tdcells[15].getText()) 
 		else:			
 			OF6 = 0
 			#print "OFF NIHIL"
@@ -424,21 +424,21 @@ def getTableContents(table):
 		dText = tdcells[2].getText()
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
-		textUP = tdcells[9].getText()
+		textUP = tdcells[10].getText()
 		if (textUP) != '':
-			UP = int(tdcells[9].getText()) 
+			UP = int(tdcells[10].getText()) 
 		else:			
 			UP = 0
 		#---------------------------------------
-		textTunai = tdcells[10].getText()
+		textTunai = tdcells[11].getText()
 		if (textTunai) != '':
-			TUNAI = int(tdcells[10].getText()) 
+			TUNAI = int(tdcells[11].getText()) 
 		else:			
 			TUNAI = 0
 		#---------------------------------------
-		textNonTunai = tdcells[11].getText()
+		textNonTunai = tdcells[12].getText()
 		if (textNonTunai) != '':
-			NONTUNAI = int(tdcells[11].getText()) 
+			NONTUNAI = int(tdcells[12].getText()) 
 		else:			
 			NONTUNAI = 0
 		#---------------------------------------
@@ -468,9 +468,9 @@ def getTableContents(table):
 		else:			
 			ATM = 0
 		#---------------------------------------
-		textAvail = tdcells[30].getText()
+		textAvail = tdcells[35].getText()
 		if (textAvail) != '':
-			AVAIL = float(tdcells[30].getText()) 
+			AVAIL = float(tdcells[35].getText()) 
 		else:			
 			AVAIL = 0
 		#---------------------------------------
