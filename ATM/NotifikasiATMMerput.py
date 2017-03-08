@@ -2,7 +2,7 @@
 #---------------------------------------
 # NotifikasiATMMerput.py
 # (c) Jansen A. Simanullang
-# 28 Januari 2017 13:10:40
+# 28.01.2017 13:10:40 - 08.03.2017 15:26
 # to be used with cron job scheduler
 #---------------------------------------
 # usage: NotifikasiATMMerput
@@ -450,13 +450,13 @@ def printMessageBody():
 
 			else:
 				count = 1
-				msgBody = "\n**"+TProRatih[i][2]+"**\n("+str(count)+")"+ strEntry
+				msgBody = "\n*"+TProRatih[i][2]+"*\n("+str(count)+")"+ strEntry
 				dictMsgBody[TProRatih[i][0]] += msgBody
 		
 
 		else:
 			count = 1
-			msgBody = "\n\n**NOTIFIKASI ATM MERAH PUTIH**\n**"+TProRatih[i][1].upper()+" ("+TProRatih[i][0]+")**\n"+timestamp+"\n----------------------------\n**"+ TProRatih[i][2]+ "**\n("+str(count)+")"+ strEntry
+			msgBody = "\n\n*NOTIFIKASI ATM MERAH PUTIH*\n*"+TProRatih[i][1].upper()+" ("+TProRatih[i][0]+")*\n"+timestamp+"\n----------------------------\n*"+ TProRatih[i][2]+ "*\n("+str(count)+")"+ strEntry
 			dictMsgBody[TProRatih[i][0]] = msgBody
 
 	#print msgBody
@@ -469,7 +469,7 @@ def TelegramBotSender(chat_id, strText):
 
 	encText=urllib.quote_plus(strText)
 
-	strURL = "https://api.telegram.org/bot"+secretKey+"/sendMessage?chat_id="+chat_id+"&text="+urllib.quote_plus(strText)
+	strURL = "https://api.telegram.org/bot"+secretKey+"/sendMessage?parse_mode=Markdown&chat_id="+chat_id+"&text="+urllib.quote_plus(strText)
 	# comment out this line below for testing purposes
 	os.system('proxychains w3m -dump "'+ strURL+'"')
 
