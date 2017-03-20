@@ -567,7 +567,7 @@ def prepareDirectory(strOutputDir):
 	# siapkan struktur direktori untuk penyimpanan data
 	# struktur direktori adalah ['OUTPUT', 'EDC', '2015', '04-APR', 'DAY-28'] makes './OUTPUT/EDC/2015/04-APR/DAY-28'
 
-	arrDirectoryStructure = [strOutputDir, 'ATM']
+	arrDirectoryStructure = [strOutputDir, 'ATM', time.strftime("%Y"), time.strftime("%m-%b").upper() , "DAY-"+time.strftime("%d")]
 
 	fullPath = scriptDirectory
 
@@ -789,7 +789,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	sheet1.write_merge(lastRow, lastRow, offCol, offCol+21, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
 
-	namaFileXLS = prepareDirectory("OUTPUT") + "ATM-ALL-JKTIII.xls"
+	namaFileXLS = prepareDirectory("OUTPUT") + "ATM ALL-" + RegionName +time.strftime("-%Y%m%d-%H")+'.xls'
 
 	book.save(namaFileXLS)
 
