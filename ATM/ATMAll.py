@@ -269,71 +269,71 @@ def getTableContents(table):
 
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
-		textNOPG = tdcells[5].getText()
+		textNOPG = tdcells[6].getText()
 		if textNOPG:
-			NOPG = int(tdcells[5].getText()) 
+			NOPG = int(tdcells[6].getText()) 
 		else:			
 			NOPG = 0
 			#print "NOPG NIHIL"
 		#---------------------------------------
-		textNOPNG = tdcells[6].getText()
+		textNOPNG = tdcells[7].getText()
 		if textNOPNG:
-			NOPNG = int(tdcells[6].getText()) 
+			NOPNG = int(tdcells[7].getText()) 
 		else:
 			NOPNG = 0
 			#print "NOPNG NIHIL"
 		#---------------------------------------
 		NOP = NOPG + NOPNG
 		#---------------------------------------
-		textRSKG = tdcells[7].getText()
+		textRSKG = tdcells[8].getText()
 		if textRSKG:
-			RSKG = int(tdcells[7].getText()) 
+			RSKG = int(tdcells[8].getText()) 
 		else:			
 			RSKG = 0
 			#print "RSKG NIHIL"
 		#---------------------------------------
-		textRSKNG = tdcells[8].getText()
+		textRSKNG = tdcells[9].getText()
 		if textRSKNG:
-			RSKNG = int(tdcells[8].getText()) 
+			RSKNG = int(tdcells[9].getText()) 
 		else:			
 			RSKNG = 0
 			#print "RSKNG NIHIL"
 		#---------------------------------------
 		RSK = RSKG + RSKNG
 		#---------------------------------------
-		textPROBOPS = tdcells[9].getText()
+		textPROBOPS = tdcells[10].getText()
 		if textPROBOPS:
-			PROBOPS = int(tdcells[9].getText()) 
+			PROBOPS = int(tdcells[10].getText()) 
 		else:			
 			PROBOPS = 0
 			#print "PROBOPS NIHIL"
 		#---------------------------------------
-		textOOS= tdcells[13].getText()
+		textOOS= tdcells[14].getText()
 		if textOOS:
-			OOS = int(tdcells[13].getText()) 
+			OOS = int(tdcells[14].getText()) 
 		else:			
 			OOS = 0
 			#print "OOS NIHIL"
 		#---------------------------------------
-		textOFF = tdcells[14].getText()
+		textOFF = tdcells[15].getText()
 		if textOFF:
-			OFF = int(tdcells[14].getText()) 
+			OFF = int(tdcells[15].getText()) 
 		else:			
 			OFF = 0
 			#print "OFF NIHIL"
 		#---------------------------------------
 
-		textOF6 = tdcells[15].getText()
+		textOF6 = tdcells[16].getText()
 		if textOF6:
-			OF6 = int(tdcells[15].getText()) 
+			OF6 = int(tdcells[16].getText()) 
 		else:			
 			OF6 = 0
 			#print "OFF NIHIL"
 		#---------------------------------------
 		
-		textPINGOK = tdcells[16].getText()
+		textPINGOK = tdcells[17].getText()
 		if textPINGOK:
-			PINGOK = int(tdcells[16].getText()) 
+			PINGOK = int(tdcells[17].getText()) 
 		else:			
 			PINGOK = 0
 			#print "PING OK NIHIL"
@@ -363,21 +363,21 @@ def getTableContents(table):
 
 		namaCabang = cleanupNamaUker(dText.upper())
 		#---------------------------------------
-		textUP = tdcells[10].getText()
+		textUP = tdcells[11].getText()
 		if (textUP) != '':
-			UP = int(tdcells[10].getText()) 
+			UP = int(tdcells[11].getText()) 
 		else:			
 			UP = 0
 		#---------------------------------------
-		textTunai = tdcells[11].getText()
+		textTunai = tdcells[12].getText()
 		if (textTunai) != '':
-			TUNAI = int(tdcells[11].getText()) 
+			TUNAI = int(tdcells[12].getText()) 
 		else:			
 			TUNAI = 0
 		#---------------------------------------
-		textNonTunai = tdcells[12].getText()
+		textNonTunai = tdcells[13].getText()
 		if (textNonTunai) != '':
-			NONTUNAI = int(tdcells[12].getText()) 
+			NONTUNAI = int(tdcells[13].getText()) 
 		else:			
 			NONTUNAI = 0
 		#---------------------------------------
@@ -410,9 +410,9 @@ def getTableContents(table):
 		else:			
 			ATM = 0
 		#---------------------------------------
-		textAvail = tdcells[35].getText()
+		textAvail = tdcells[36].getText()
 		if (textAvail) != '':
-			AVAIL = float(tdcells[35].getText()) 
+			AVAIL = float(tdcells[36].getText()) 
 		else:			
 			AVAIL = 0
 		#---------------------------------------
@@ -567,7 +567,7 @@ def prepareDirectory(strOutputDir):
 	# siapkan struktur direktori untuk penyimpanan data
 	# struktur direktori adalah ['OUTPUT', 'EDC', '2015', '04-APR', 'DAY-28'] makes './OUTPUT/EDC/2015/04-APR/DAY-28'
 
-	arrDirectoryStructure = [strOutputDir, 'ATM', time.strftime("%Y"), time.strftime("%m-%b").upper() , "DAY-"+time.strftime("%d")]
+	arrDirectoryStructure = [strOutputDir, 'ATM']
 
 	fullPath = scriptDirectory
 
@@ -789,7 +789,7 @@ def putDataXL(offRow, offCol, TProblem, TUtility, TAvailability):
 
 	sheet1.write_merge(lastRow, lastRow, offCol, offCol+21, 'TARGET UTILITY & AVAILABILITY = 99%' , xlwt.easyxf(styleTitle + 'borders: top thin, bottom thin;'))
 
-	namaFileXLS = prepareDirectory("OUTPUT") + "ATM ALL-" + RegionName +time.strftime("-%Y%m%d-%H")+'.xls'
+	namaFileXLS = prepareDirectory("OUTPUT") + "ATM-ALL-JKTIII.xls"
 
 	book.save(namaFileXLS)
 
