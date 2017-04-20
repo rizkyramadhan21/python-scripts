@@ -4,7 +4,7 @@
 # portaldwh.py
 # Automated Downloader
 # (c) Rizky Ramadhan
-# 20 April 2017 
+# 20 April 2017 14:08
 #---------------------------------------
 # usage:
 # python tugasdariPinwil.py
